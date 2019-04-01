@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: com.shojabon.man10gachav3.Man10GachaV3
+

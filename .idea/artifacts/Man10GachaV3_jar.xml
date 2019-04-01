@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Man10GachaV3:jar">
+    <output-path>$PROJECT_DIR$/../../minecraft server/plugins</output-path>
+    <root id="archive" name="Man10GachaV3.jar">
+      <element id="module-output" name="Man10GachaV3" />
+    </root>
+  </artifact>
+</component>
