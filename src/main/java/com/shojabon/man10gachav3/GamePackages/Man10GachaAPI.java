@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class Man10GachaAPI {
     private Plugin plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV3");
     public static HashMap<String, GachaGame> gachaGameMap = new HashMap<>();
+    public static HashMap<String, GachaGame> gachaGameCacheMap = new HashMap<>();
 
     public Man10GachaAPI(){
 
@@ -38,21 +40,14 @@ public class Man10GachaAPI {
         printPayment(payments, config);
 
 
-        HashMap<String, Integer> compressedItems = new HashMap<>();
-        HashMap<Integer, GachaItemStack> compressedGachaItem = new HashMap<>();
 
-        int count = 0;
-        for(GachaItemStack item : itemStacks){
-            if(!compressedItems.containsKey(new SItemStack(item.item).toBase64())){
-                compressedItems.put(new SItemStack(item.item).toBase64(), count);
-                compressedGachaItem.put(count, item);
-                count += 1;
-            }
-        }
+        ArrayList<GachaItemStack> compressedItemStacks = compressItemStackList(itemStacks);
+
 
         StringBuilder out = new StringBuilder();
         for (GachaItemStack itemStack : itemStacks) {
-            out.append(compressedItems.get(new SItemStack(itemStack.item).toBase64())).append(",").append(itemStack.amount).append("|");
+            int index = getIndexOfItem(compressedItemStacks, itemStack);
+            out.append(index).append("|");
         }
 
         if(out.length() != 0){
@@ -60,8 +55,8 @@ public class Man10GachaAPI {
         }else{
             config.set("storage", null);
         }
-        for(int i = 0;i < compressedGachaItem.size();i++){
-            Map<String, Object> item = compressedGachaItem.get(i).getStringData();
+        for(int i = 0;i < compressedItemStacks.size();i++){
+            Map<String, Object> item = compressedItemStacks.get(i).getStringData();
             printItemIndex(item, config, i);
         }
 
@@ -74,12 +69,16 @@ public class Man10GachaAPI {
 
     }
 
+    private int getIndexOfItem(ArrayList<GachaItemStack> items, GachaItemStack item){
+        for(int i =0; i < items.size(); i++){
+            if(items.get(i).isTheSame(item)) return i;
+        }
+        return -1;
+    }
+
     private void printItemIndex(Map<String, Object> itemData, FileConfiguration config, int id){
         for(String key: itemData.keySet()){
             switch (key) {
-                case "commands":
-                case "broadcastMessage":
-                case "playerMessage":
                 case "broadcastSound":
                 case "playerSound": {
                     Map<String, String> map = ((GachaSound) itemData.get(key)).getStringData();
@@ -172,6 +171,7 @@ public class Man10GachaAPI {
         if(!gachaGameMap.containsKey(name)){
             GachaGame game = new GachaGame(name, (JavaPlugin) plugin);
             gachaGameMap.put(name, game);
+            gachaGameCacheMap.put(name, game);
         }
         return gachaGameMap.get(name);
     }
@@ -204,6 +204,53 @@ public class Man10GachaAPI {
         for(String name : names){
             this.getGacha(name);
         }
+    }
+
+
+    public boolean ifGachaExists(String name){
+        if(gachaGameMap.containsKey(name)){
+            return true;
+        }
+        File file = new File(plugin.getDataFolder(), "gacha" + File.separator + name + ".yml");
+        return file.exists();
+    }
+
+    public void deleteGacha(GachaGame game){
+        if(ifGachaExists(game.getSettings().name)){
+            File file = new File(plugin.getDataFolder(), "gacha" + File.separator + game.getSettings().name + ".yml");
+            file.delete();
+            gachaGameMap.remove(game);
+        }
+    }
+
+    public void createGacha(GachaGame game){
+        createGacha(game.getSettings(), game.getPayments(), game.renderStorage());
+    }
+
+    public ArrayList<GachaItemStack> compressItemStackList(ArrayList<GachaItemStack> arr){
+        ArrayList<GachaItemStack> out = new ArrayList<>();
+        for(GachaItemStack item : arr){
+            boolean same = false;
+            for(GachaItemStack outItem: out){
+                if(item.isTheSame(outItem)) {
+                    same = true;
+                    break;
+                }
+            }
+            if(!same) out.add(item);
+        }
+        return out;
+    }
+
+    public void updateGacha(GachaGame game){
+        if(!ifGachaExists(game.getSettings().name)){
+            createGacha(game);
+            return;
+        }
+        deleteGacha(game);
+        createGacha(game);
+        gachaGameCacheMap.remove(game.getSettings().name);
+        getGacha(game.getSettings().name);
     }
 
 

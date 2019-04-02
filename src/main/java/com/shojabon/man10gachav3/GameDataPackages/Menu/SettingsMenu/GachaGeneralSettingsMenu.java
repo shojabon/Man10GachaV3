@@ -3,7 +3,6 @@ package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 import com.shojabon.man10gachav3.DataPackages.CategorizedMenuCategory;
 import com.shojabon.man10gachav3.GameDataPackages.*;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.CategorizedMenuAPI;
-import com.shojabon.man10gachav3.GameDataPackages.Menu.GachaSettingsMenu;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.*;
@@ -146,7 +145,8 @@ public class GachaGeneralSettingsMenu {
             }
             case 2: {
                 //アイコン設定
-                new ItemStackSelectorAPI("§b§lのアイコンを選択してください", p, game.getSettings().icon, (event, itemStack) -> {
+                new ItemStackSelectorAPI("§b§lのアイコンを選択してください", p, game.getSettings().icon, 1, (event, itemStack) -> {
+                    itemStack = new SItemStack(itemStack).setDamage(1).build();
                     if(itemStack == game.getSettings().icon){
                         p.sendMessage(prefix + "§c§l過去と同じアイコンは使用できません");
                         return "restart";

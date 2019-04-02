@@ -1,5 +1,6 @@
 package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
+import com.shojabon.man10gachav3.DataPackages.GachaBannerDictionary;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
@@ -14,6 +15,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
+import java.util.function.Function;
+
 public class GachaContainerSettingsMenu {
     Inventory inv;
     Listener listener = new Listener();
@@ -23,12 +27,20 @@ public class GachaContainerSettingsMenu {
     int currentPage = 0;
     SInventory sInventory;
     int[] slots = new int[]{10,14,19,23,28,32,37,41};
+    int[] settingsSlots = new int[]{11,15,20,24,29,33,38,42};
+    GachaContainerSettingsMenu menu;
 
     GachaGame game;
+    GachaBannerDictionary dict = new GachaBannerDictionary();
 
-    public GachaContainerSettingsMenu(String gacha, Player p){
+    Function<InventoryClickEvent, String> cancelFunction;
+    Man10GachaAPI api = new Man10GachaAPI();
+
+    public GachaContainerSettingsMenu(String gacha, Player p, Function<InventoryClickEvent, String> cancelFunction){
         p.closeInventory();
         this.gacha = gacha;
+        this.cancelFunction = cancelFunction;
+        menu = this;
         game = Man10GachaAPI.gachaGameMap.get(gacha);
         this.p = p;
         this.plugin = (JavaPlugin) Bukkit.getPluginManager().getPlugin("Man10GachaV3");
@@ -41,6 +53,7 @@ public class GachaContainerSettingsMenu {
         inve.setItem(new int[]{12,16,21,25,30,34,39,43}, new SItemStack(Material.TNT).setDisplayname("§4§l消去する").build());
         inve.setItem(new int[]{18,27}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("戻る").setDamage(14).build());
         inve.setItem(new int[]{26,35}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("次へ").setDamage(14).build());
+        inve.setItem(53, dict.getSymbol("back"));
         sInventory = inve;
         inv = inve.build();
         render(currentPage);
@@ -61,8 +74,9 @@ public class GachaContainerSettingsMenu {
             len = game.getItemIndex().size();
         }
         for(int i =0; i < len; i++){
-            if(game.getItemIndex().get(menu * 8 + i) != null){
+            if(game.getItemIndex().size() > menu * 8 + i){
                 inv.setItem(slots[i], new SItemStack(game.getItemIndex().get(menu * 8 + i).item).setAmount(game.getItemIndex().get(menu * 8 + i).amount).build());
+                //アイテムセット
             }else{
             }
         }
@@ -86,6 +100,30 @@ public class GachaContainerSettingsMenu {
                 currentPage -= 1;
                 if(currentPage < 0) currentPage = 0;
                 render(currentPage);
+                return;
+            }
+            if(e.getRawSlot() == 53) {
+                close(p);
+                cancelFunction.apply(e);
+                return;
+            }
+            for(int i =0; i < settingsSlots.length; i++){
+                if(e.getRawSlot() == settingsSlots[i]){
+                    int itemslot = e.getRawSlot() - 1;
+                    int index = getIndexOf(slots, itemslot) + 8 * currentPage;
+                    if(game.getItemIndex().size() >= index){
+                        new GachaItemStackSettingsMenu(menu, index, event -> {
+                            p.closeInventory();
+                            Bukkit.getPluginManager().registerEvents(listener, plugin);
+                            api.updateGacha(game);
+                            render(currentPage);
+                            p.openInventory(inv);
+                            return null;
+                        });
+                    }else{
+                        Bukkit.broadcastMessage("nope");
+                    }
+                }
             }
         }
 
@@ -95,5 +133,14 @@ public class GachaContainerSettingsMenu {
             close((Player) e.getPlayer());
         }
 
+    }
+
+    public int getIndexOf(int[] arr, int number){
+        for(int i =0; i < arr.length; i++){
+            if(arr[i] == number){
+                return i;
+            }
+        }
+        return -1;
     }
 }

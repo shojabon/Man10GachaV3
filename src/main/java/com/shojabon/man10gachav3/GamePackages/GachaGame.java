@@ -36,6 +36,7 @@ public class GachaGame {
     private ArrayList<GachaItemStack> itemIndex;
     private ArrayList<GachaItemStack> storage = new ArrayList<>();
     private HashMap<UUID, Inventory> inventoryMap = new HashMap<>();
+    private HashMap<Integer, Integer> storageAmount = new HashMap<>();
     private JavaPlugin plugin;
 
     public GachaGame(String name, JavaPlugin plugin){
@@ -132,22 +133,20 @@ public class GachaGame {
 
     private void getItemStacks(FileConfiguration config){
         String items = config.getString("storage");
-        ArrayList<GachaItemStack> itemStacks = new ArrayList<>();
         String[] split = items.split("\\|");
         for(String s : split){
-            String[] split1 = s.split(",");
-                if(itemIndex.get(Integer.valueOf(split1[0])) != null){
-                    GachaItemStack item = new GachaItemStack(itemIndex.get(Integer.valueOf(split1[0])));
-                    item.amount = Integer.valueOf(split1[1]);
-                    storage.add(item);
-                }
+            if(storageAmount.containsKey(Integer.valueOf(s))){
+                storageAmount.put(Integer.valueOf(s), storageAmount.get(Integer.valueOf(s))+1);
+            }else{
+                storageAmount.put(Integer.valueOf(s), 1);
+            }
         }
+        storage = renderStorage();
     }
 
     public ArrayList<GachaItemStack> getStorage() {
         return storage;
     }
-
     private class Listener implements org.bukkit.event.Listener {
 
         @EventHandler
@@ -172,5 +171,30 @@ public class GachaGame {
 
     public ArrayList<GachaItemStack> getItemIndex() {
         return itemIndex;
+    }
+
+    public HashMap<Integer, Integer> getStorageAmount() {
+        return storageAmount;
+    }
+
+    public ArrayList<GachaPayment> getPayments() {
+        return payments;
+    }
+
+    public ArrayList<GachaItemStack> renderStorage(){
+        ArrayList<GachaItemStack> items = new ArrayList<>();
+        for(int i =0; i < storageAmount.keySet().size(); i++){
+            int key = (int) storageAmount.keySet().toArray()[i];
+            for(int ii =0; ii < storageAmount.get(key); ii++){
+                items.add(itemIndex.get(key));
+            }
+
+        }
+        return items;
+    }
+
+    public void setStorageAmound(int index, int amount){
+        storageAmount.put(index, amount);
+        storage = renderStorage();
     }
 }

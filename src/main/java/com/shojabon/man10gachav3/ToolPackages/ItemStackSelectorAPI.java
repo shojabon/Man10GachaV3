@@ -25,7 +25,7 @@ public class ItemStackSelectorAPI {
     Player p;
     BiFunction<InventoryClickEvent, ItemStack, String> okFunction;
     Function<InventoryClickEvent, String> cancelFunction;
-    public ItemStackSelectorAPI(String title, Player p, ItemStack currentItem, BiFunction<InventoryClickEvent, ItemStack, String> okFunction, Function<InventoryClickEvent, String> cancelFunction){
+    public ItemStackSelectorAPI(String title, Player p, ItemStack currentItem, int amount, BiFunction<InventoryClickEvent, ItemStack, String> okFunction, Function<InventoryClickEvent, String> cancelFunction){
         p.closeInventory();
         this.p = p;
         this.okFunction = okFunction;
@@ -34,7 +34,7 @@ public class ItemStackSelectorAPI {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
         inv = new SInventory(3, title).fillInventory(new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname(" ").setDamage(11).build()).
                 setItem(new int[]{11, 12}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("§a§l決定").setDamage(5).build()).
-                setItem(new int[]{14, 15}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("§c§lキャンセル").setDamage(14).build()).setItem(13, currentItem).
+                setItem(new int[]{14, 15}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("§c§lキャンセル").setDamage(14).build()).setItem(13, new SItemStack(currentItem).setAmount(amount).build()).
         setItem(26, new SItemStack(new SBannerItemStack((short) 4).pattern(new Pattern(DyeColor.WHITE, PatternType.STRIPE_LEFT)).pattern(new Pattern(DyeColor.WHITE, PatternType.STRIPE_TOP)).pattern(new Pattern(DyeColor.WHITE, PatternType.STRIPE_MIDDLE)).pattern(new Pattern(DyeColor.BLUE, PatternType.STRIPE_TOP)).pattern(new Pattern(DyeColor.BLUE, PatternType.STRIPE_BOTTOM)).pattern(new Pattern(DyeColor.BLUE, PatternType.CURLY_BORDER)).build()).setDisplayname("§c§l§n戻る").build()).build();
         p.openInventory(inv);
     }

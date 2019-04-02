@@ -45,27 +45,35 @@ public final class Man10GachaV3 extends JavaPlugin {
 
     public void a(){
         Man10GachaAPI api = new Man10GachaAPI();
-        GachaSettings settings = new GachaSettings("test", "a", new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1), new SItemStack(Material.DIAMOND).build());
+        GachaSettings settings = new GachaSettings("test", "a", new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1), new SItemStack(Material.STONE).build());
         ArrayList<GachaPayment> payments = new ArrayList<>();
         payments.add(new GachaPayment(new GachaVaultPayment(100)));
 
         ArrayList<GachaItemStack> items = new ArrayList<>();
-        items.add(new GachaItemStack(new SItemStack(Material.STONE).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.DIAMOND).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.GOLD_AXE).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.ANVIL).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.TNT).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.WATCH).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.FENCE_GATE).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.GLASS).setAmount(10).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.TNT).setAmount(10).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.STONE).setAmount(1).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.DIAMOND).setAmount(2).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.GOLD_AXE).setAmount(3).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.ANVIL).setAmount(4).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.TNT).setAmount(5).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.WATCH).setAmount(6).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.FENCE_GATE).setAmount(7).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.GLASS).setAmount(8).build()));
+        items.add(new GachaItemStack(new SItemStack(Material.TNT).setAmount(9).build()));
         api.createGacha(settings, payments, items);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(command.getName().equalsIgnoreCase("gachav3")){
+
+            if(args.length == 1){
+                if(args[0].equalsIgnoreCase("create")){
+                    a();
+                    return false;
+                }
+            }
             //a();
+
             new GachaSettingsSelectionMenu(((Player)sender));
         }
         return false;

@@ -1,6 +1,7 @@
 package com.shojabon.man10gachav3.DataPackages;
 
 import com.shojabon.man10gachav3.GameDataPackages.GachaSound;
+import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -19,7 +20,7 @@ public class GachaItemStack implements Serializable {
     public ArrayList<String> playerMessage = null;
 
     public ArrayList<ItemStack> items = null;
-    public int amount;
+    public int amount = 1;
 
     public GachaSound broadcastSound = new GachaSound();
     public GachaSound playerSound = new GachaSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
@@ -123,6 +124,24 @@ public class GachaItemStack implements Serializable {
             objects.put("playerSound", this.playerSound);
         }
         return objects;
+    }
+
+    public boolean isTheSame(GachaItemStack comparison){
+        Map<String, Object> obj = comparison.getStringData();
+        Map<String, Object> obj2 = getStringData();
+        if(obj.keySet().size() != obj2.keySet().size()) return false;
+        for(String key: obj.keySet()){
+            if(obj.get(key) != null && obj2.get(key) != null){
+                if(obj.get(key) instanceof GachaSound){
+                    if(!((GachaSound) obj.get(key)).getStringData().equals(((GachaSound) obj2.get(key)).getStringData())) return false;
+                }else {
+                    if(!obj.get(key).equals(obj2.get(key)))return false;
+                }
+            }else{
+                return false;
+            }
+        }
+        return true;
     }
 
 }

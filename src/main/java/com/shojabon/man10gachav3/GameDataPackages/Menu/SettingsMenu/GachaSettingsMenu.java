@@ -1,8 +1,7 @@
-package com.shojabon.man10gachav3.GameDataPackages.Menu;
+package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
 import com.shojabon.man10gachav3.DataPackages.SBannerItemStack;
-import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaContainerSettingsMenu;
-import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaGeneralSettingsMenu;
+import com.shojabon.man10gachav3.GameDataPackages.Menu.GachaSettingsSelectionMenu;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
@@ -68,7 +67,11 @@ public class GachaSettingsMenu {
                 if(e.getRawSlot() == 44) new GachaSettingsSelectionMenu(p);
                 if(e.getRawSlot() == 29) generalSettingsMenu.createMenu(0,0);
                 if(e.getRawSlot() == 22) {
-                    new GachaContainerSettingsMenu(gacha, p);
+                    new GachaContainerSettingsMenu(gacha, p, event -> {
+                        api.updateGacha(api.getGacha(gacha));
+                        new GachaSettingsMenu(gacha, p);
+                        return null;
+                    });
                 }
             }).start();
         }

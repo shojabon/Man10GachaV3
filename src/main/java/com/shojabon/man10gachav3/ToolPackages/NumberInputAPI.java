@@ -30,7 +30,7 @@ public class NumberInputAPI {
     private Function<InventoryClickEvent, String> backFunction;
     public NumberInputAPI(String title, Player player, int numberOfChars, BiFunction<InventoryClickEvent, Integer, String> function, Function<InventoryClickEvent, String> backFunction){
         player.closeInventory();
-        this.plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV2");
+        this.plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV3");
         this.player = player;
         this.backFunction = backFunction;
         this.function = function;
