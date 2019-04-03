@@ -1,6 +1,7 @@
 package com.shojabon.man10gachav3.events;
 
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
+import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.Man10GachaV3;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,6 +31,10 @@ public class SignClickEvent implements Listener {
         //start time and end time process
         //here !!!
         GachaGame game = plugin.api.getGacha(gachaName);
+        if (Man10GachaAPI.inGamePlayerMap.containsKey(e.getPlayer().getUniqueId())) {
+            e.getPlayer().sendMessage(Man10GachaV3.prefix + "§c§l現在あなたはゲームをプレー中です");
+            return;
+        }
         if(!plugin.api.ifPlayerHasEnoughForPayment(e.getPlayer(), game)){
             e.getPlayer().sendMessage("§6§l=-=-=-=[§f" + game.getSettings().title+ "§6§l]=-=-=-=");
             for(String s : plugin.api.getLackingPaymentMessage(e.getPlayer(),game)){

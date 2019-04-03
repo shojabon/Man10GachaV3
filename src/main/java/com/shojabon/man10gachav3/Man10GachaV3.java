@@ -12,6 +12,7 @@ import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import com.shojabon.man10gachav3.events.SignClickEvent;
 import com.shojabon.man10gachav3.events.SignDestroyEvent;
 import com.shojabon.man10gachav3.events.SignUpdateEvent;
+import net.milkbowl.vault.item.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,6 +20,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -29,7 +31,7 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
     public Man10GachaAPI api = null;
     GachaVault vault = null;
 
-    public String prefix = "§6[§aMg§fac§dha§5V2§6]§f";
+    public static String prefix = "§6[§aMg§fac§dha§5V2§6]§f";
 
     @Override
     public void onEnable() {
@@ -53,6 +55,9 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        for(Player p : Bukkit.getServer().getOnlinePlayers()){
+            p.closeInventory();
+        }
     }
 
     public void a(){
@@ -85,6 +90,8 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
                 if(args[0].equalsIgnoreCase("play")){
                     api.getGacha("test").play(p);
                     return false;
+                }
+                if(args[0].equalsIgnoreCase("test")){
                 }
             }
             //a();

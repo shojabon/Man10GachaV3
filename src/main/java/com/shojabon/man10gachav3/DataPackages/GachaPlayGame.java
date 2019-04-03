@@ -1,6 +1,8 @@
 package com.shojabon.man10gachav3.DataPackages;
 
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
+import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
+import com.shojabon.man10gachav3.Man10GachaV3;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Bukkit;
@@ -37,7 +39,7 @@ public class GachaPlayGame {
         invee.fillInventory(new SItemStack(Material.STAINED_GLASS_PANE).setDamage(11).setDisplayname(" ").build());
         invee.setItem(new int[]{4,22}, new SItemStack(Material.STAINED_GLASS_PANE).setDamage(14).setDisplayname("§c§l||").build());
         invee.setLine(1, new ItemStack(Material.AIR));
-
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
         inv = invee.build();
         p.openInventory(inv);
         play();
@@ -46,6 +48,7 @@ public class GachaPlayGame {
     int[] slots = new int[]{9,10, 11,12,13,14,15,16,17};
 
     private void play(){
+        Man10GachaAPI.inGamePlayerMap.put(p.getUniqueId(), game.getSettings().name);
         Runnable r = () -> {
             long speed =  5;
             int stage = 0;
@@ -117,6 +120,11 @@ public class GachaPlayGame {
             }
         }
 
+
+
+
+
+        Man10GachaAPI.inGamePlayerMap.remove(p.getUniqueId());
     }
 
     private void rollItems(){

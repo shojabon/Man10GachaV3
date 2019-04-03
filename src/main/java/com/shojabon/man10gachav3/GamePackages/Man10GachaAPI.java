@@ -27,6 +27,7 @@ public class Man10GachaAPI {
     public static HashMap<String, GachaGame> gachaGameMap = new HashMap<>();
     public static HashMap<String, GachaGame> gachaGameCacheMap = new HashMap<>();
     static HashMap<Location, GachaSignData> signDataMap = new HashMap<>();
+    public static HashMap<UUID, String> inGamePlayerMap = new HashMap<>();
     private GachaVault vault;
 
     public Man10GachaAPI(){

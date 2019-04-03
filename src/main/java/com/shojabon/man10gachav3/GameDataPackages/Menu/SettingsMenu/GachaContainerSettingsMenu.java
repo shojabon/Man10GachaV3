@@ -1,8 +1,10 @@
 package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
 import com.shojabon.man10gachav3.DataPackages.GachaBannerDictionary;
+import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
+import com.shojabon.man10gachav3.ToolPackages.MultiItemStackSelectorAPI;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Bukkit;
@@ -13,9 +15,15 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class GachaContainerSettingsMenu {
@@ -55,10 +63,21 @@ public class GachaContainerSettingsMenu {
         inve.setItem(new int[]{18,27}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("戻る").setDamage(14).build());
         inve.setItem(new int[]{26,35}, new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname("次へ").setDamage(14).build());
         inve.setItem(53, dict.getSymbol("back"));
+        inve.setItem(49, new SItemStack(Material.HOPPER).setDisplayname("§6§lアイテムをインポートする").build());
         sInventory = inve;
         inv = inve.build();
         render(currentPage);
         p.openInventory(inv);
+    }
+
+    private void reopen(){
+        new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                new GachaContainerSettingsMenu(gacha, p, cancelFunction);
+            }
+        }.runTaskLater(plugin, 2);
     }
 
     private void close(Player p){
@@ -95,6 +114,35 @@ public class GachaContainerSettingsMenu {
                 currentPage += 1;
                 render(currentPage);
 
+                return;
+            }
+            if(e.getRawSlot() == 49){
+                new MultiItemStackSelectorAPI(p, new ArrayList<>(), (event, itemStacks) -> {
+
+                    HashMap<String, Integer> itemMap = new HashMap<>();
+                    for(ItemStack item : itemStacks){
+                        if(itemMap.containsKey(new SItemStack(item).toBase64())){
+                            itemMap.put(new SItemStack(item).toBase64(), itemMap.get(new SItemStack(item).toBase64()) + 1);
+                        }else{
+                            itemMap.put(new SItemStack(item).toBase64(), 1);
+                        }
+                    }
+
+
+                    for(String key : itemMap.keySet()){
+                        ItemStack item = new SItemStack(key).build();
+                        int index = menu.game.getItemIndex().size();
+                        GachaItemStack gItemStack = new GachaItemStack(item);
+                        gItemStack.amount = item.getAmount();
+                        menu.game.setItemIndex(-1, gItemStack);
+                        menu.game.setStorageAmound(index, itemMap.get(new SItemStack(item).toBase64()));
+                    }
+                    reopen();
+                    return null;
+                }, event -> {
+                    reopen();
+                    return null;
+                });
                 return;
             }
             if(e.getRawSlot() == 18 || e.getRawSlot() == 27){
