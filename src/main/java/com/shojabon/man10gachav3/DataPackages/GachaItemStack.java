@@ -1,9 +1,6 @@
 package com.shojabon.man10gachav3.DataPackages;
 
-import com.shojabon.man10gachav3.GameDataPackages.GachaSound;
-import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
@@ -117,10 +114,10 @@ public class GachaItemStack implements Serializable {
             }
             objects.put("items", items);
         }
-        if(broadcastSound.usable()){
+        if(!broadcastSound.getStringData().equals(new GachaSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 1).getStringData()) && !broadcastSound.getStringData().equals(new GachaSound().getStringData())){
             objects.put("broadcastSound", this.broadcastSound);
         }
-        if(playerSound != new GachaSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 1)){
+        if(!playerSound.getStringData().equals(new GachaSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 1).getStringData())){
             objects.put("playerSound", this.playerSound);
         }
         return objects;

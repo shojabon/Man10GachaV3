@@ -1,7 +1,7 @@
 package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
+import com.shojabon.man10gachav3.DataPackages.GachaSettings;
 import com.shojabon.man10gachav3.DataPackages.SBannerItemStack;
-import com.shojabon.man10gachav3.GameDataPackages.Menu.GachaSettingsSelectionMenu;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
@@ -17,6 +17,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.function.Function;
 
 public class GachaSettingsMenu {
     Inventory inv;
@@ -25,6 +28,18 @@ public class GachaSettingsMenu {
     String gacha;
     Player p;
     Man10GachaAPI api;
+
+    private void reopenMenu(){
+        new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                new GachaSettingsMenu(gacha, p);
+            }
+        }.runTaskLater(plugin, 1);
+    }
+
+
     public GachaSettingsMenu(String gacha, Player p){
         p.closeInventory();
         this.gacha = gacha;
@@ -66,10 +81,17 @@ public class GachaSettingsMenu {
             new Thread(() -> {
                 if(e.getRawSlot() == 44) new GachaSettingsSelectionMenu(p);
                 if(e.getRawSlot() == 29) generalSettingsMenu.createMenu(0,0);
+                if(e.getRawSlot() == 11){
+                    new GachaPaymentSettingsMenu(gacha, p, event -> {
+                        api.updateGacha(api.getGacha(gacha));
+                        reopenMenu();
+                        return null;
+                    });
+                }
                 if(e.getRawSlot() == 22) {
                     new GachaContainerSettingsMenu(gacha, p, event -> {
                         api.updateGacha(api.getGacha(gacha));
-                        new GachaSettingsMenu(gacha, p);
+                        reopenMenu();
                         return null;
                     });
                 }

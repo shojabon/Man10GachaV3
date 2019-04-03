@@ -1,11 +1,8 @@
 package com.shojabon.man10gachav3.GamePackages;
 
-import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
-import com.shojabon.man10gachav3.DataPackages.GachaPayment;
+import com.shojabon.man10gachav3.DataPackages.*;
 import com.shojabon.man10gachav3.DataPackages.GachaPaymentData.GachaItemStackPayment;
 import com.shojabon.man10gachav3.DataPackages.GachaPaymentData.GachaVaultPayment;
-import com.shojabon.man10gachav3.DataPackages.GachaSettings;
-import com.shojabon.man10gachav3.GameDataPackages.GachaSound;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import com.shojabon.man10gachav3.enums.GachaPaymentType;
 import org.bukkit.Bukkit;
@@ -13,16 +10,14 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +26,7 @@ import java.util.UUID;
 public class GachaGame {
 
     private GachaSettings settings;
-    private ArrayList<GachaPayment> payments;
+    private ArrayList<GachaPayment> payments = new ArrayList<>();
     private Listener listener = new Listener();
     private ArrayList<GachaItemStack> itemIndex;
     private ArrayList<GachaItemStack> storage = new ArrayList<>();
@@ -75,6 +70,7 @@ public class GachaGame {
 
     private ArrayList<GachaPayment> getPaymentList(FileConfiguration config){
         ArrayList<GachaPayment> payments = new ArrayList<>();
+        if(config.get("payments") == null) return new ArrayList<>();
         ConfigurationSection configurationSection = config.getConfigurationSection("payments");
         for(String numKeys: configurationSection.getKeys(false)){
             GachaPaymentType paymentType = GachaPaymentType.valueOf(config.getString("payments." + numKeys + ".type"));
@@ -193,8 +189,56 @@ public class GachaGame {
         return items;
     }
 
-    public void setStorageAmound(int index, int amount){
-        storageAmount.put(index, amount);
+    public void updateStorage(){
         storage = renderStorage();
     }
+
+    public void setStorageAmound(int index, int amount){
+        if(amount == 0){
+            storageAmount.remove(index);
+        }else {
+            storageAmount.put(index, amount);
+        }
+        storage = renderStorage();
+    }
+
+    public void setItemIndex(int index, GachaItemStack item){
+        if(index == -1){
+            itemIndex.add(item);
+        }else if(index == -2) {
+            itemIndex.remove(item);
+        }else{
+            itemIndex.set(index, item);
+        }
+    }
+
+    public void updatePayments(GachaPaymentType type, GachaPayment payment){
+        for(int i =0; i < payments.size(); i++){
+            GachaPaymentType permType = payments.get(i).getType();
+            if(permType == type){
+                if(payment.getType() == GachaPaymentType.VAULT && payment.getVaultPayment().getValue() == 0){
+                }else{
+                    payments.set(i, payment);
+                }
+                return;
+            }
+        }
+        if(payment.getType() == GachaPaymentType.VAULT && payment.getVaultPayment().getValue() == 0) return;
+        payments.add(payment);
+    }
+
+    public void deletePayment(GachaPaymentType type){
+        ArrayList<GachaPayment> paymentOut = new ArrayList<>();
+        for(int i = 0; i < payments.size(); i++){
+            if(payments.get(i).getType() != type){
+                paymentOut.add(payments.get(i));
+            }
+        }
+        payments = paymentOut;
+    }
+
+    public void play(Player p){
+        new GachaPlayGame(p, this);
+    }
+
 }

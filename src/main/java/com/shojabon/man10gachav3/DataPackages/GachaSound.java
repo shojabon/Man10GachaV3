@@ -1,4 +1,4 @@
-package com.shojabon.man10gachav3.GameDataPackages;
+package com.shojabon.man10gachav3.DataPackages;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;

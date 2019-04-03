@@ -2,10 +2,9 @@ package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
 
 import com.shojabon.man10gachav3.DataPackages.CategorizedMenuCategory;
-import com.shojabon.man10gachav3.DataPackages.GachaBannerDictionary;
 import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
-import com.shojabon.man10gachav3.GameDataPackages.GachaSound;
-import com.shojabon.man10gachav3.GameDataPackages.Menu.CategorizedMenuAPI;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
+import com.shojabon.man10gachav3.ToolPackages.CategorizedMenuAPI;
 import com.shojabon.man10gachav3.ToolPackages.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -41,7 +40,14 @@ public class GachaItemStackSettingsMenu {
         menu.p.closeInventory();
         this.index = index;
         this.menu = menu;
-        gItemStack = menu.game.getItemIndex().get(index);
+        if(menu.game.getItemIndex().size()-1 >= index){
+            gItemStack = menu.game.getItemIndex().get(index);
+        }else{
+            this.index = menu.game.getItemIndex().size();
+            gItemStack = new GachaItemStack(new ItemStack(Material.STONE), 1);
+            menu.game.setItemIndex(-1, gItemStack);
+            menu.game.setStorageAmound(this.index, 1);
+        }
         this.cancelFunction = cancelFunction;
         createMenu(0, 0);
     }
@@ -55,6 +61,20 @@ public class GachaItemStackSettingsMenu {
 
         List<ItemStack> messageSettings = new ArrayList<>();
         List<ItemStack> soundSettings = new ArrayList<>();
+
+        if(gItemStack.playerSound != null) {
+            Map<String, String> playerSoundMap = gItemStack.playerSound.getStringData();
+            soundSettings.add(new SItemStack(Material.NOTE_BLOCK).setDisplayname("§d§l§nプレイヤー再生音声設定").addLore("§b§l音名:" + playerSoundMap.get("sound")).addLore("§b§lボリューム:" + playerSoundMap.get("volume")).addLore("§b§lピッチ:" + playerSoundMap.get("pitch")).build());
+        }else{
+            soundSettings.add(new SItemStack(Material.NOTE_BLOCK).setDisplayname("§d§l§nプレイヤー再生音声設定").addLore("§b§l現在設定：なし").build());
+        }
+        if(gItemStack.broadcastSound != null){
+            Map<String, String> broadcastSoundMap = gItemStack.broadcastSound.getStringData();
+            soundSettings.add(new SItemStack(Material.JUKEBOX).setDisplayname("§d§l§nサーバー再生音声設定").addLore("§b§l音名:" + broadcastSoundMap.get("sound")).addLore("§b§lボリューム:" + broadcastSoundMap.get("volume")).addLore("§b§lピッチ:" + broadcastSoundMap.get("pitch")).build());
+        }else{
+            soundSettings.add(new SItemStack(Material.JUKEBOX).setDisplayname("§d§l§nサーバー再生音声設定").addLore("§b§l現在設定：なし").build());
+        }
+
         List<ItemStack> permissionSettings = new ArrayList<>();
 
         List<ItemStack> vaultSettings = new ArrayList<>();
@@ -146,7 +166,7 @@ public class GachaItemStackSettingsMenu {
             case 1:{
                 //ストレージ個数設定
                 new NumberInputAPI("§b§lストレージ個数を選択してください", p, 9, (event, integer) -> {
-                    menu.game.setStorageAmound(index, amount);
+                    menu.game.setStorageAmound(index, integer);
                     pushSettings();
                     reopenMenu(0,0);
                     return null;
@@ -176,9 +196,9 @@ public class GachaItemStackSettingsMenu {
             }
             case 1:{
                 //サーバー再生音設定
-                GachaSound sound = gItemStack.playerSound;
+                GachaSound sound = gItemStack.broadcastSound;
                 new SoundSelectorAPI("§b§lサーバー再生音を選択してください", menu.p, sound.getVolume(), sound.getPitch(), sound.getSound(), (event, gachaSound) -> {
-                    gItemStack.playerSound = gachaSound;
+                    gItemStack.broadcastSound = gachaSound;
                     pushSettings();
                     reopenMenu(1, 0);
                     return null;

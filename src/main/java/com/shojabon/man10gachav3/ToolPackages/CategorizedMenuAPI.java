@@ -1,4 +1,4 @@
-package com.shojabon.man10gachav3.GameDataPackages.Menu;
+package com.shojabon.man10gachav3.ToolPackages;
 
 import com.shojabon.man10gachav3.DataPackages.CategorizedMenuCategory;
 import com.shojabon.man10gachav3.DataPackages.SBannerItemStack;

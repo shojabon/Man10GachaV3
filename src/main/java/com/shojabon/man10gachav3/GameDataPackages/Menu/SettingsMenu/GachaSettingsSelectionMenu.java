@@ -1,5 +1,6 @@
-package com.shojabon.man10gachav3.GameDataPackages.Menu;
+package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
+import com.shojabon.man10gachav3.DataPackages.GachaPayment;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsMenu;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;

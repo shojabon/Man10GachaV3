@@ -46,6 +46,14 @@ public class SInventory {
         return this;
     }
 
+    public SInventory setLine(int line, ItemStack item){
+        int[] a = new int[] {0,1,2,3,4,5,6,7,8};
+        for(int i =0; i < a.length; i++){
+            inv.setItem(line * 9 + a[i], item);
+        }
+        return this;
+    }
+
     public Inventory build(){
         return inv;
     }

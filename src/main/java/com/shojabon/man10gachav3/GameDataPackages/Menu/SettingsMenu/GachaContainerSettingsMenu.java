@@ -28,6 +28,7 @@ public class GachaContainerSettingsMenu {
     SInventory sInventory;
     int[] slots = new int[]{10,14,19,23,28,32,37,41};
     int[] settingsSlots = new int[]{11,15,20,24,29,33,38,42};
+    int[] deleteSlots = new int[]{12,16,21,25,30,34,39,43};
     GachaContainerSettingsMenu menu;
 
     GachaGame game;
@@ -108,6 +109,17 @@ public class GachaContainerSettingsMenu {
                 return;
             }
             for(int i =0; i < settingsSlots.length; i++){
+                if(e.getRawSlot() == deleteSlots[i]){
+                    int itemSlot = e.getRawSlot() - 2;
+                    int index = getIndexOf(slots, itemSlot) + 8 * currentPage;
+                    if(game.getItemIndex().size() >= index){
+                        game.setStorageAmound(index, 0);
+                        game.getItemIndex().remove(index);
+                        render(currentPage);
+                    }else{
+                        return;
+                    }
+                }
                 if(e.getRawSlot() == settingsSlots[i]){
                     int itemslot = e.getRawSlot() - 1;
                     int index = getIndexOf(slots, itemslot) + 8 * currentPage;
@@ -121,7 +133,14 @@ public class GachaContainerSettingsMenu {
                             return null;
                         });
                     }else{
-                        Bukkit.broadcastMessage("nope");
+                        new GachaItemStackSettingsMenu(menu, index, event -> {
+                            p.closeInventory();
+                            Bukkit.getPluginManager().registerEvents(listener, plugin);
+                            api.updateGacha(game);
+                            render(currentPage);
+                            p.openInventory(inv);
+                            return null;
+                        });
                     }
                 }
             }

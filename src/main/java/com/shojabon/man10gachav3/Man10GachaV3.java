@@ -4,22 +4,19 @@ import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
 import com.shojabon.man10gachav3.DataPackages.GachaPayment;
 import com.shojabon.man10gachav3.DataPackages.GachaPaymentData.GachaVaultPayment;
 import com.shojabon.man10gachav3.DataPackages.GachaSettings;
-import com.shojabon.man10gachav3.GameDataPackages.GachaSound;
-import com.shojabon.man10gachav3.GameDataPackages.Menu.GachaSettingsSelectionMenu;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
+import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsSelectionMenu;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public final class Man10GachaV3 extends JavaPlugin {
 
@@ -65,10 +62,14 @@ public final class Man10GachaV3 extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(command.getName().equalsIgnoreCase("gachav3")){
-
+            Player p = ((Player)sender);
             if(args.length == 1){
                 if(args[0].equalsIgnoreCase("create")){
                     a();
+                    return false;
+                }
+                if(args[0].equalsIgnoreCase("play")){
+                    api.getGacha("test").play(p);
                     return false;
                 }
             }

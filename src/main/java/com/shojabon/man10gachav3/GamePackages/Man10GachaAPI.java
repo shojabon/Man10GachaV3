@@ -4,7 +4,7 @@ package com.shojabon.man10gachav3.GamePackages;
 import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
 import com.shojabon.man10gachav3.DataPackages.GachaPayment;
 import com.shojabon.man10gachav3.DataPackages.GachaSettings;
-import com.shojabon.man10gachav3.GameDataPackages.GachaSound;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,7 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
