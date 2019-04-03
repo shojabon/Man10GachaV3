@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Man10VaultAPIPlus">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../minecraft server/plugins/Man10VaultAPIPlus.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

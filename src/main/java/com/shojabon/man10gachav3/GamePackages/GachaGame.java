@@ -77,10 +77,12 @@ public class GachaGame {
             switch (paymentType){
                 case VAULT:
                     double amount = Double.parseDouble(config.getString("payments." + numKeys + ".amount"));
+                    if(amount == 0) break;
                     payments.add(new GachaPayment(new GachaVaultPayment(amount)));
                     break;
                 case ITEM:
-                    payments.add(new GachaPayment(new GachaItemStackPayment(new SItemStack(config.getString("payments." + numKeys + ".item")).build(), config.getInt("amount"))));
+                    int amountt = Integer.parseInt(config.getString("payments." + numKeys + ".amount"));
+                    payments.add(new GachaPayment(new GachaItemStackPayment(new SItemStack(config.getString("payments." + numKeys + ".item")).build(), amountt)));
                     break;
             }
         }

@@ -103,16 +103,21 @@ public class GachaPaymentSettingsMenu {
         @EventHandler
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
+            e.setCancelled(true);
             if(e.getRawSlot() == 26){
                 cancelFunction.apply(e);
                 return;
             }
             if(e.getRawSlot() == 12){
                 ItemStack noItem = new SItemStack(new ItemStack(Material.CHEST)).setDisplayname("§c§l現在設定なし").build();
+                int amo = 1;
                 for(GachaPayment payment : game.getPayments()){
-                    if(payment.getType() == GachaPaymentType.ITEM) noItem = payment.getItemStackPayment().getItemStack();
+                    if(payment.getType() == GachaPaymentType.ITEM){
+                        noItem = payment.getItemStackPayment().getItemStack();
+                        amo = payment.getItemStackPayment().getAmount();
+                    }
                 }
-                new ItemStackSelectorAPI("§b§l使用アイテム設定", p, noItem, 1, (event, itemStack) -> {
+                new ItemStackSelectorAPI("§b§l使用アイテム設定", p, noItem, amo, (event, itemStack) -> {
                     if(new SItemStack(new ItemStack(Material.CHEST)).setDisplayname("§c§l現在設定なし").build().isSimilar(itemStack)) {
                         reopen();
                         return null;
@@ -149,14 +154,12 @@ public class GachaPaymentSettingsMenu {
 
 
 
-            e.setCancelled(true);
         }
 
         @EventHandler
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close(p);
-            cancelFunction.apply(null);
         }
 
     }

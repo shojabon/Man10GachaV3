@@ -7,26 +7,41 @@ import com.shojabon.man10gachav3.DataPackages.GachaSettings;
 import com.shojabon.man10gachav3.DataPackages.GachaSound;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsSelectionMenu;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
+import com.shojabon.man10gachav3.ToolPackages.GachaVault;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
+import com.shojabon.man10gachav3.events.SignClickEvent;
+import com.shojabon.man10gachav3.events.SignDestroyEvent;
+import com.shojabon.man10gachav3.events.SignUpdateEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 
-public final class Man10GachaV3 extends JavaPlugin {
+public final class Man10GachaV3 extends JavaPlugin implements Listener {
 
     public Man10GachaAPI api = null;
+    GachaVault vault = null;
+
+    public String prefix = "§6[§aMg§fac§dha§5V2§6]§f";
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
         api = new Man10GachaAPI();
+        api.loadSignFile();
+        vault = new GachaVault();
+        Bukkit.getServer().getPluginManager().registerEvents(this, this);
+        Bukkit.getServer().getPluginManager().registerEvents(new SignUpdateEvent(this),this);
+        Bukkit.getServer().getPluginManager().registerEvents(new SignDestroyEvent(this),this);
+        Bukkit.getServer().getPluginManager().registerEvents(new SignClickEvent(this),this);
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -45,7 +60,6 @@ public final class Man10GachaV3 extends JavaPlugin {
         GachaSettings settings = new GachaSettings("test", "a", new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1), new SItemStack(Material.STONE).build());
         ArrayList<GachaPayment> payments = new ArrayList<>();
         payments.add(new GachaPayment(new GachaVaultPayment(100)));
-
         ArrayList<GachaItemStack> items = new ArrayList<>();
         items.add(new GachaItemStack(new SItemStack(Material.STONE).setAmount(1).build()));
         items.add(new GachaItemStack(new SItemStack(Material.DIAMOND).setAmount(2).build()));

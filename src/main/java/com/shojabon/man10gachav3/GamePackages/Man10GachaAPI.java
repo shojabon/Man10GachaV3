@@ -1,33 +1,128 @@
 package com.shojabon.man10gachav3.GamePackages;
 
 
-import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
-import com.shojabon.man10gachav3.DataPackages.GachaPayment;
-import com.shojabon.man10gachav3.DataPackages.GachaSettings;
-import com.shojabon.man10gachav3.DataPackages.GachaSound;
+import com.shojabon.man10gachav3.DataPackages.*;
+import com.shojabon.man10gachav3.ToolPackages.GachaVault;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
+import com.shojabon.man10gachav3.enums.GachaPaymentType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.util.*;
 
 public class Man10GachaAPI {
     private Plugin plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV3");
     public static HashMap<String, GachaGame> gachaGameMap = new HashMap<>();
     public static HashMap<String, GachaGame> gachaGameCacheMap = new HashMap<>();
+    static HashMap<Location, GachaSignData> signDataMap = new HashMap<>();
+    private GachaVault vault;
 
     public Man10GachaAPI(){
-
+        vault = new GachaVault();
     }
+
+
+
+
+
+    public boolean ifGachaSign(Location l){
+        return signDataMap.containsKey(l);
+    }
+
+    public String getSignGacha(Location l){
+        if(!ifGachaSign(l)){
+            return null;
+        }
+        return signDataMap.get(l).getGacha();
+    }
+
+    public void registerNewSign(GachaSignData data){
+        createSignsFileIfNotExist();
+        resetSignFile();
+        signDataMap.put(data.getLocation(), data);
+        wrightSignsFile();
+    }
+
+    public void deleteSign(Location location){
+        createSignsFileIfNotExist();
+        resetSignFile();
+        signDataMap.remove(location);
+        wrightSignsFile();
+    }
+
+    public void loadSignFile(){
+        File f = new File(plugin.getDataFolder(), "signs.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(f);
+        signDataMap.clear();
+        for(String key : config.getKeys(false)){
+            GachaSignData data = new GachaSignData(new Location(Bukkit.getWorld(config.getString(key + ".world")), config.getInt(key + ".x"), config.getInt(key + ".y"), config.getInt(key + ".z")), config.getString(key + ".gacha"));
+            signDataMap.put(data.getLocation(), data);
+        }
+    }
+
+    public void resetSignFile(){
+        File f = new File(plugin.getDataFolder(), "signs.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(f);
+        for(String key: config.getKeys(false)){
+            config.set(key, null);
+        }
+        try {
+            config.save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void wrightSignsFile(){
+        createSignsFileIfNotExist();
+        resetSignFile();
+        File f = new File(plugin.getDataFolder(), "signs.yml");
+        Configuration signConfig = YamlConfiguration.loadConfiguration(f);
+        for(int i = 0;i < signDataMap.keySet().size();i++){
+            GachaSignData data = signDataMap.get(signDataMap.keySet().toArray()[i]);
+            signConfig.set(i + ".gacha", data.getGacha());
+            signConfig.set(i + ".x", data.getLocation().getBlockX());
+            signConfig.set(i + ".y", data.getLocation().getBlockY());
+            signConfig.set(i + ".z", data.getLocation().getBlockZ());
+            signConfig.set(i + ".world", data.getLocation().getWorld().getName());
+        }
+        try {
+            ((YamlConfiguration) signConfig).save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void createSignsFileIfNotExist(){
+        File f = new File(plugin.getDataFolder(), "signs.yml");
+        if(f.exists()){
+            return;
+        }
+        try {
+            boolean b = f.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean ifSignsFileExists(){
+        return new File(plugin.getDataFolder(), "signs.yml").exists();
+    }
+
+
 
     public void createGacha(GachaSettings gachaSettings, ArrayList<GachaPayment> payments, ArrayList<GachaItemStack> itemStacks){
         File file = new File(plugin.getDataFolder(), "gacha" + File.separator + gachaSettings.name + ".yml");
@@ -250,6 +345,99 @@ public class Man10GachaAPI {
         createGacha(game);
         gachaGameCacheMap.remove(game.getSettings().name);
         getGacha(game.getSettings().name);
+    }
+
+
+    public boolean ifPlayerHasEnoughForPayment(Player p, GachaGame game){
+        if(game == null){
+            return false;
+        }
+        for(GachaPayment payment: game.getPayments()){
+            if(payment.getType() == GachaPaymentType.VAULT){
+                if(vault.getBalance(p.getUniqueId()) < payment.getVaultPayment().getValue()){
+                    return false;
+                }
+            }
+            if(payment.getType() == GachaPaymentType.ITEM){
+                if(!new SItemStack(p.getInventory().getItemInMainHand()).setAmount(1).build().isSimilar(new SItemStack(payment.getItemStackPayment().getItemStack()).setAmount(1).build())){
+                    return false;
+                }else{
+                    if(p.getInventory().getItemInMainHand().getAmount() < payment.getItemStackPayment().getAmount()){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean takePayment(Player p, GachaGame game){
+        if(game == null){
+            return false;
+        }
+        if(!ifPlayerHasEnoughForPayment(p, game)){
+            return false;
+        }
+        ArrayList<GachaPayment> payments = game.getPayments();
+        for(GachaPayment payment : payments) {
+            if (payment.getType() == GachaPaymentType.VAULT) {
+                vault.takeMoney(p.getUniqueId(), payment.getVaultPayment().getValue());
+            } else if (payment.getType() == GachaPaymentType.ITEM) {
+                p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - payment.getItemStackPayment().getAmount());
+            }
+        }
+        return true;
+    }
+
+    public List<String> getPayMessage(Player p, GachaGame game){
+        if(game == null){
+            return null;
+        }
+        List<String> messages = new ArrayList<>();
+        ArrayList<GachaPayment> payments = game.getPayments();
+        for(GachaPayment payment : payments){
+            if(payment.getType() == GachaPaymentType.VAULT){
+                p.sendMessage("§a§l現金§7§l|§a§l" + NumberFormat.getNumberInstance(Locale.US).format(payment.getVaultPayment().getValue()) + "円");
+            }
+            if(payment.getType() == GachaPaymentType.ITEM){
+                String name = payment.getItemStackPayment().getItemStack().getItemMeta().getDisplayName();
+                if(name == null) name = payment.getItemStackPayment().getItemStack().getType().name();
+                p.sendMessage("§a§lアイテム§7§l|§a§l『" + name + "§a§l』を " + NumberFormat.getNumberInstance(Locale.US).format(payment.getItemStackPayment().getAmount()) +"個");
+            }
+        }
+        return messages;
+    }
+
+    public List<String> getLackingPaymentMessage(Player p, GachaGame game){
+        if(game == null){
+            return null;
+        }
+        List<String> messages = new ArrayList<>();
+        ArrayList<GachaPayment> payments = game.getPayments();
+        for(GachaPayment payment : payments){
+            if(payment.getType() == GachaPaymentType.VAULT){
+                if(vault.hasEnough(p.getUniqueId(), payment.getVaultPayment().getValue())) {
+                    messages.add("§2§l✔ §7§l| §a§l現金 " + payment.getVaultPayment().getValue() + "円");
+                }else{
+                    messages.add("§4§l✖ §7§l| §c§l現金 " + payment.getVaultPayment().getValue() + "円");
+                }
+            }
+            if(payment.getType() == GachaPaymentType.ITEM){
+                int amountInHand = p.getInventory().getItemInMainHand().getAmount();
+                String name = payment.getItemStackPayment().getItemStack().getType().name();
+                if(payment.getItemStackPayment().getItemStack().getItemMeta().getDisplayName() != null) name = payment.getItemStackPayment().getItemStack().getItemMeta().getDisplayName();
+                if(!new SItemStack(p.getInventory().getItemInMainHand()).setAmount(1).build().isSimilar(new SItemStack(payment.getItemStackPayment().getItemStack()).setAmount(1).build())){
+                    messages.add("§4§l✖ §7§l| §4§lアイテム 『" + name + "§4§l』が" + payment.getItemStackPayment().getAmount() + "個");
+                }else{
+                    if(p.getInventory().getItemInMainHand().getAmount() < payment.getItemStackPayment().getAmount()){
+                        messages.add("§4§l✖ §7§l| §4§lアイテム 『" + name + "§4§l』が" + payment.getItemStackPayment().getAmount() + "個");
+                    }else{
+                        messages.add("§2§l✔ §7§l| §a§lアイテム 『" + name + "§a§l』が" + payment.getItemStackPayment().getAmount() + "個");
+                    }
+                }
+            }
+        }
+        return messages;
     }
 
 
