@@ -21,6 +21,7 @@ public class MultiItemStackSelectorAPI {
     Inventory inv;
     Listener listener = new Listener();
     JavaPlugin plugin;
+    boolean menuMove = false;
     Player p;
     BiFunction<InventoryClickEvent, ArrayList<ItemStack>, String> okFunction;
     Function<InventoryClickEvent, String> cancelFucntion;
@@ -64,6 +65,7 @@ public class MultiItemStackSelectorAPI {
             int r = e.getRawSlot();
             if(r >= 45 && r <=53) e.setCancelled(true);
             if(r == 53){
+                menuMove = true;
                 String res = cancelFucntion.apply(e);
                 if(res == null){
                     p.closeInventory();
@@ -77,6 +79,7 @@ public class MultiItemStackSelectorAPI {
                         items.add(inv.getItem(i));
                     }
                 }
+                menuMove = true;
                 String res = okFunction.apply(e, items);
                 if(res == null){
                     p.closeInventory();
@@ -89,7 +92,7 @@ public class MultiItemStackSelectorAPI {
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close((Player) e.getPlayer());
-            cancelFucntion.apply(null);
+            if(!menuMove) cancelFucntion.apply(null);
         }
 
     }

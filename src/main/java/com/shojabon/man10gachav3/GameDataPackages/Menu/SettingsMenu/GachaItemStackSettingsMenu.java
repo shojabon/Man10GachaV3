@@ -26,6 +26,8 @@ public class GachaItemStackSettingsMenu {
     Plugin plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV3");
     int index;
     int amount;
+    int startCategory;
+    int startPage;
     private ItemStack renderItemList(SItemStack itemStack, ArrayList<String> string){
         if(string == null){
             return itemStack.addLore("§b§l現在設定：なし").build();
@@ -36,21 +38,24 @@ public class GachaItemStackSettingsMenu {
         return itemStack.build();
     }
 
-    public GachaItemStackSettingsMenu(GachaContainerSettingsMenu menu, int index, Function<InventoryClickEvent, String> cancelFunction){
+    public GachaItemStackSettingsMenu(GachaContainerSettingsMenu menu, int startCategory, int startPage, int index, Function<InventoryClickEvent, String> cancelFunction){
         menu.p.closeInventory();
         this.index = index;
         this.menu = menu;
+        this.startCategory = startCategory;
+        this.startPage = startPage;
         if(menu.game.getItemIndex().size()-1 >= index){
             gItemStack = menu.game.getItemIndex().get(index);
         }else{
             this.index = menu.game.getItemIndex().size();
             gItemStack = new GachaItemStack(new ItemStack(Material.STONE), 1);
             menu.game.setItemIndex(-1, gItemStack);
-            menu.game.setStorageAmound(this.index, 1);
+            menu.game.setStorageAmount(this.index, 1);
         }
         this.cancelFunction = cancelFunction;
-        createMenu(0, 0);
+        createMenu(startCategory, startPage);
     }
+
 
     public void createMenu(int startCategory, int startPage){
         List<ItemStack> generalSettingsItem = new ArrayList<>();
@@ -100,14 +105,14 @@ public class GachaItemStackSettingsMenu {
         }, cancelFunction, startCategory, startPage);
     }
 
-    private void reopenMenu(int startCategory, int startPage){
+    private void reopenMenu(int cat, int str){
         new BukkitRunnable(){
 
             @Override
             public void run() {
-                createMenu(startCategory, startPage);
+                new GachaItemStackSettingsMenu(menu, cat, str, index, cancelFunction);
             }
-        }.runTaskLater(plugin, 1);
+        }.runTaskLater(plugin, 2);
     }
 
     private void onClick(int category, int slot){
@@ -166,7 +171,7 @@ public class GachaItemStackSettingsMenu {
             case 1:{
                 //ストレージ個数設定
                 new NumberInputAPI("§b§lストレージ個数を選択してください", p, 9, (event, integer) -> {
-                    menu.game.setStorageAmound(index, integer);
+                    menu.game.setStorageAmount(index, integer);
                     pushSettings();
                     reopenMenu(0,0);
                     return null;
@@ -216,6 +221,12 @@ public class GachaItemStackSettingsMenu {
             case 0:{
                 //プレイヤーメッセージ設定
                 new StringListEditorAPI(menu.p, gItemStack.playerMessage, (strings, player) -> {
+                    if(strings.size() == 0){
+                        gItemStack.playerMessage = null;
+                        pushSettings();
+                        reopenMenu(2,0);
+                        return null;
+                    }
                     gItemStack.playerMessage = new ArrayList<>(strings);
                     pushSettings();
                     reopenMenu(2,0);
@@ -229,6 +240,12 @@ public class GachaItemStackSettingsMenu {
             case 1:{
                 //サーバーメッセージ設定
                 new StringListEditorAPI(menu.p, gItemStack.broadcastMessage, (strings, player) -> {
+                    if(strings.size() == 0){
+                        gItemStack.playerMessage = null;
+                        pushSettings();
+                        reopenMenu(2,0);
+                        return null;
+                    }
                     gItemStack.broadcastMessage = new ArrayList<>(strings);
                     pushSettings();
                     reopenMenu(2,0);

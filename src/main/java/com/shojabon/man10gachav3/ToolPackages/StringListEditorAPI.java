@@ -38,7 +38,7 @@ public class StringListEditorAPI {
     }
 
     private void renderText(int selecting) {
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 20; i++) {
             p.sendMessage(" ");
         }
         for (int i = 0; i < list.size(); i++) {
@@ -104,6 +104,8 @@ public class StringListEditorAPI {
             }
             if(args[0].equalsIgnoreCase("new")){
                 list.add("");
+                renderText(currentSelect);
+                return;
             }
             if(args[0].equalsIgnoreCase("cancel")){
                 String res = cancelFunction.apply(list);

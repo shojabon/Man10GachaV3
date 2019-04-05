@@ -38,10 +38,10 @@ public class GachaGame {
         this.plugin = plugin;
         File file = new File(Bukkit.getPluginManager().getPlugin("Man10GachaV3").getDataFolder(), "gacha" + File.separator + name + ".yml");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        this. settings = new GachaSettings(getSettingsMap(config));
-        this.settings.name = name;
-        this.itemIndex = getItemStackMap(config);
-        this.payments = getPaymentList(config);
+        settings = new GachaSettings(getSettingsMap(config));
+        settings.name = name;
+        itemIndex = getItemStackMap(config);
+        payments = getPaymentList(config);
         Bukkit.getPluginManager().registerEvents(listener, this.plugin);
         getItemStacks(config);
     }
@@ -49,6 +49,7 @@ public class GachaGame {
 
 
     private Map<String, Object> getSettingsMap(FileConfiguration config){
+        if(config.get("settings") == null) return new HashMap<>();
         Map<String, Object> map = new HashMap<>();
         ConfigurationSection configurationSection = config.getConfigurationSection("settings");
         for(String keys: configurationSection.getKeys(false)){
@@ -90,6 +91,7 @@ public class GachaGame {
     }
 
     private ArrayList<GachaItemStack> getItemStackMap(FileConfiguration config){
+        if(config.get("index") == null) return new ArrayList<>();
         ConfigurationSection configurationSection = config.getConfigurationSection("index");
         ArrayList<GachaItemStack> index = new ArrayList<>();
         for(String numKey : configurationSection.getKeys(false)){
@@ -130,6 +132,7 @@ public class GachaGame {
     }
 
     private void getItemStacks(FileConfiguration config){
+        if(config.get("storage") == null) return;
         String items = config.getString("storage");
         String[] split = items.split("\\|");
         for(String s : split){
@@ -195,9 +198,13 @@ public class GachaGame {
         storage = renderStorage();
     }
 
-    public void setStorageAmound(int index, int amount){
+    public void setStorageAmount(int index, int amount){
         if(amount == 0){
-            storageAmount.remove(index);
+            int from = storageAmount.size()-1 - index;
+            for(int i =0; i < from; i++){
+                storageAmount.put(index + i, storageAmount.get(index + i + 1));
+            }
+            storageAmount.remove(storageAmount.size()-1);
         }else {
             storageAmount.put(index, amount);
         }

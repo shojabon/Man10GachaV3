@@ -4,6 +4,7 @@ import com.shojabon.man10gachav3.DataPackages.GachaBannerDictionary;
 import com.shojabon.man10gachav3.DataPackages.GachaPayment;
 import com.shojabon.man10gachav3.DataPackages.GachaPaymentData.GachaItemStackPayment;
 import com.shojabon.man10gachav3.DataPackages.GachaPaymentData.GachaVaultPayment;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.ItemStackSelectorAPI;
@@ -13,6 +14,7 @@ import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import com.shojabon.man10gachav3.enums.GachaPaymentType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,6 +106,7 @@ public class GachaPaymentSettingsMenu {
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
             e.setCancelled(true);
+            if(e.getRawSlot() <= 26 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             if(e.getRawSlot() == 26){
                 cancelFunction.apply(e);
                 return;

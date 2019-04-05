@@ -9,6 +9,7 @@ import com.shojabon.man10gachav3.ToolPackages.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -16,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class GachaGeneralSettingsMenu {
     String gacha;
@@ -24,11 +26,18 @@ public class GachaGeneralSettingsMenu {
     Man10GachaAPI api;
     String prefix = "§6[§aMg§fac§dha§5V2§6]§f";
     GachaGame game;
-    public GachaGeneralSettingsMenu(String gacha, Player p){
+    int startCategory;
+    int startPage;
+    Function<InventoryClickEvent, String> clickBackFunction;
+    public GachaGeneralSettingsMenu(String gacha, Player p, int startCategory, int startPage, Function<InventoryClickEvent, String> clickBackFunction){
         this.gacha = gacha;
         this.p = p;
+        this.clickBackFunction = clickBackFunction;
+        this.startCategory = startCategory;
+        this.startPage = startPage;
         api = new Man10GachaAPI();
         game =  Man10GachaAPI.gachaGameMap.get(gacha);
+        createMenu(0, 0);
     }
     public void createMenu(int startCategory, int startPage){
         p.closeInventory();
@@ -56,9 +65,19 @@ public class GachaGeneralSettingsMenu {
             settings(categorizedMenuLocation.getCategory(), categorizedMenuLocation.getNum());
             return null;
         }, event -> {
-            new GachaSettingsMenu(gacha, p);
+            clickBackFunction.apply(null);
             return null;
         }, startCategory, startPage);
+    }
+
+    private void restartMenu(int startCategory, int startPage){
+        new BukkitRunnable(){
+
+            @Override
+            public void run() {
+                new GachaGeneralSettingsMenu(gacha, p , startCategory, startPage, clickBackFunction);
+            }
+        }.runTaskLater(plugin, 2);
     }
 
     private void pushSettings(){
@@ -84,15 +103,6 @@ public class GachaGeneralSettingsMenu {
         }
     }
 
-    private void restartMenu(int startCategory, int startPage){
-        new BukkitRunnable(){
-
-            @Override
-            public void run() {
-                createMenu(startCategory, startPage);
-            }
-        }.runTaskLater(plugin, 1);
-    }
 
     private void generalCategory(int id){
         switch(id){

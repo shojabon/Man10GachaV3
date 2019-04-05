@@ -1,6 +1,7 @@
 package com.shojabon.man10gachav3.ToolPackages;
 
 import com.shojabon.man10gachav3.DataPackages.CategorizedMenuCategory;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
 import com.shojabon.man10gachav3.DataPackages.SBannerItemStack;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
@@ -32,8 +33,9 @@ public class CategorizedMenuAPI {
     Player p;
     int start = 0;
 
-    int currentCategory = 0;
-    int currentSelectionPage = 0;
+    int currentCategory;
+    int currentSelectionPage;
+    boolean menuMoving = false;
 
     List<CategorizedMenuCategory> category;
     Function<InventoryClickEvent, String> clickBackFunction;
@@ -115,9 +117,12 @@ public class CategorizedMenuAPI {
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
             e.setCancelled(true);
+            if(e.getRawSlot() <= 53 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             new Thread(()->{
-                p.playSound(p.getLocation(), Sound.BLOCK_DISPENSER_DISPENSE, 1, 1);
-                if(e.getRawSlot() == 53) clickBackFunction.apply(e);
+                if(e.getRawSlot() == 53) {
+                    menuMoving = true;
+                    clickBackFunction.apply(e);
+                }
                 int s = e.getRawSlot();
                 if(s == 26 || s == 35 || s == 44){
                     if(category.get(currentCategory).getContent().size() - (currentSelectionPage + 1)  * 21 >= 0){
@@ -154,6 +159,7 @@ public class CategorizedMenuAPI {
                 }
                 if(e.getRawSlot() >= 19 && e.getRawSlot() <= 43) {
                     if(e.getClickedInventory().getItem(e.getRawSlot()) != null){
+                        menuMoving = true;
                         clickFunction.apply(e, new CategorizedMenuLocation(currentCategory, selectionSlotToSelectionId.get(e.getRawSlot())));
                     }
                 }
@@ -164,6 +170,9 @@ public class CategorizedMenuAPI {
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close((Player) e.getPlayer());
+            if(!menuMoving){
+                clickBackFunction.apply(null);
+            }
         }
 
     }

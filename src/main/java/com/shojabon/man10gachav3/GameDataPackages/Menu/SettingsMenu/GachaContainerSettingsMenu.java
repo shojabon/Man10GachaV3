@@ -2,6 +2,7 @@ package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
 import com.shojabon.man10gachav3.DataPackages.GachaBannerDictionary;
 import com.shojabon.man10gachav3.DataPackages.GachaItemStack;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.ToolPackages.MultiItemStackSelectorAPI;
@@ -9,6 +10,7 @@ import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -44,6 +46,8 @@ public class GachaContainerSettingsMenu {
 
     Function<InventoryClickEvent, String> cancelFunction;
     Man10GachaAPI api = new Man10GachaAPI();
+
+    boolean movingMenu = false;
 
     public GachaContainerSettingsMenu(String gacha, Player p, Function<InventoryClickEvent, String> cancelFunction){
         p.closeInventory();
@@ -109,6 +113,7 @@ public class GachaContainerSettingsMenu {
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
             e.setCancelled(true);
+            if(e.getRawSlot() <= 53 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             if(e.getRawSlot() == 26 || e.getRawSlot() == 35){
 
                 currentPage += 1;
@@ -117,8 +122,8 @@ public class GachaContainerSettingsMenu {
                 return;
             }
             if(e.getRawSlot() == 49){
+                movingMenu = true;
                 new MultiItemStackSelectorAPI(p, new ArrayList<>(), (event, itemStacks) -> {
-
                     HashMap<String, Integer> itemMap = new HashMap<>();
                     for(ItemStack item : itemStacks){
                         if(itemMap.containsKey(new SItemStack(item).toBase64())){
@@ -127,15 +132,13 @@ public class GachaContainerSettingsMenu {
                             itemMap.put(new SItemStack(item).toBase64(), 1);
                         }
                     }
-
-
                     for(String key : itemMap.keySet()){
                         ItemStack item = new SItemStack(key).build();
                         int index = menu.game.getItemIndex().size();
                         GachaItemStack gItemStack = new GachaItemStack(item);
                         gItemStack.amount = item.getAmount();
                         menu.game.setItemIndex(-1, gItemStack);
-                        menu.game.setStorageAmound(index, itemMap.get(new SItemStack(item).toBase64()));
+                        menu.game.setStorageAmount(index, itemMap.get(new SItemStack(item).toBase64()));
                     }
                     reopen();
                     return null;
@@ -161,7 +164,7 @@ public class GachaContainerSettingsMenu {
                     int itemSlot = e.getRawSlot() - 2;
                     int index = getIndexOf(slots, itemSlot) + 8 * currentPage;
                     if(game.getItemIndex().size() >= index){
-                        game.setStorageAmound(index, 0);
+                        game.setStorageAmount(index, 0);
                         game.getItemIndex().remove(index);
                         render(currentPage);
                     }else{
@@ -172,21 +175,21 @@ public class GachaContainerSettingsMenu {
                     int itemslot = e.getRawSlot() - 1;
                     int index = getIndexOf(slots, itemslot) + 8 * currentPage;
                     if(game.getItemIndex().size() >= index){
-                        new GachaItemStackSettingsMenu(menu, index, event -> {
+                        movingMenu = true;
+                        new GachaItemStackSettingsMenu(menu, 0,0,index,event -> {
                             p.closeInventory();
                             Bukkit.getPluginManager().registerEvents(listener, plugin);
                             api.updateGacha(game);
-                            render(currentPage);
-                            p.openInventory(inv);
+                            reopen();
                             return null;
                         });
                     }else{
-                        new GachaItemStackSettingsMenu(menu, index, event -> {
+                        movingMenu = true;
+                        new GachaItemStackSettingsMenu(menu, 0,0,index,event -> {
                             p.closeInventory();
                             Bukkit.getPluginManager().registerEvents(listener, plugin);
                             api.updateGacha(game);
-                            render(currentPage);
-                            p.openInventory(inv);
+                            reopen();
                             return null;
                         });
                     }
@@ -198,6 +201,9 @@ public class GachaContainerSettingsMenu {
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close((Player) e.getPlayer());
+            if(!movingMenu){
+                cancelFunction.apply(null);
+            }
         }
 
     }

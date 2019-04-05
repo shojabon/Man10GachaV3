@@ -1,6 +1,7 @@
 package com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu;
 
 import com.shojabon.man10gachav3.DataPackages.GachaPayment;
+import com.shojabon.man10gachav3.DataPackages.GachaSound;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsMenu;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
@@ -8,6 +9,7 @@ import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -71,6 +73,7 @@ public class GachaSettingsSelectionMenu {
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
             e.setCancelled(true);
+            if(e.getRawSlot() <= 53 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             if(e.getRawSlot() >= 54) return;
             if(e.getSlot() == -999 || e.getInventory().getItem(e.getSlot()) == null || e.getSlot() == 47 || e.getSlot() == 48 || e.getSlot() == 50 || e.getSlot() == 51 || e.getSlot() == 49) return;
             if(e.getSlot() == 52 || e.getSlot() == 53){

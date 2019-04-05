@@ -42,13 +42,15 @@ public class GachaSettings {
         this.icon = icon;
     }
 
+    public GachaSettings(String name){
+        this.name = name;
+    }
+
     public Map<String, Object> getStringData() {
         Map<String, Object> map = new HashMap<>();
         map.put("title", this.title);
-        if (spinSound != null) {
+        if (!spinSound.getStringData().equals(new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1).getStringData())) {
             map.put("sound", this.spinSound);
-        } else {
-            map.put("sound", new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1));
         }
         if (icon != null) {
             if(!icon.equals(new ItemStack(Material.DIAMOND))){

@@ -25,7 +25,6 @@ import java.util.*;
 public class Man10GachaAPI {
     private Plugin plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV3");
     public static HashMap<String, GachaGame> gachaGameMap = new HashMap<>();
-    public static HashMap<String, GachaGame> gachaGameCacheMap = new HashMap<>();
     static HashMap<Location, GachaSignData> signDataMap = new HashMap<>();
     public static HashMap<UUID, String> inGamePlayerMap = new HashMap<>();
     private GachaVault vault;
@@ -126,40 +125,42 @@ public class Man10GachaAPI {
 
 
     public void createGacha(GachaSettings gachaSettings, ArrayList<GachaPayment> payments, ArrayList<GachaItemStack> itemStacks){
-        File file = new File(plugin.getDataFolder(), "gacha" + File.separator + gachaSettings.name + ".yml");
-        createFileIfNotExists(file);
-        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        Map<String, Object> settingsMap = gachaSettings.getStringData();
-        printSettings(settingsMap, config);
+        new Thread(() -> {
+            File file = new File(plugin.getDataFolder(), "gacha" + File.separator + gachaSettings.name + ".yml");
+            createFileIfNotExists(file);
+            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+            Map<String, Object> settingsMap = gachaSettings.getStringData();
+            printSettings(settingsMap, config);
 
-        printPayment(payments, config);
-
-
-
-        ArrayList<GachaItemStack> compressedItemStacks = compressItemStackList(itemStacks);
+            printPayment(payments, config);
 
 
-        StringBuilder out = new StringBuilder();
-        for (GachaItemStack itemStack : itemStacks) {
-            int index = getIndexOfItem(compressedItemStacks, itemStack);
-            out.append(index).append("|");
-        }
 
-        if(out.length() != 0){
-            config.set("storage", out.toString().substring(0, out.toString().length() -1));
-        }else{
-            config.set("storage", null);
-        }
-        for(int i = 0;i < compressedItemStacks.size();i++){
-            Map<String, Object> item = compressedItemStacks.get(i).getStringData();
-            printItemIndex(item, config, i);
-        }
+            ArrayList<GachaItemStack> compressedItemStacks = compressItemStackList(itemStacks);
 
-        try {
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+            StringBuilder out = new StringBuilder();
+            for (GachaItemStack itemStack : itemStacks) {
+                int index = getIndexOfItem(compressedItemStacks, itemStack);
+                out.append(index).append("|");
+            }
+
+            if(out.length() != 0){
+                config.set("storage", out.toString().substring(0, out.toString().length() -1));
+            }else{
+                config.set("storage", null);
+            }
+            for(int i = 0;i < compressedItemStacks.size();i++){
+                Map<String, Object> item = compressedItemStacks.get(i).getStringData();
+                printItemIndex(item, config, i);
+            }
+
+            try {
+                config.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
 
     }
@@ -266,7 +267,6 @@ public class Man10GachaAPI {
         if(!gachaGameMap.containsKey(name)){
             GachaGame game = new GachaGame(name, (JavaPlugin) plugin);
             gachaGameMap.put(name, game);
-            gachaGameCacheMap.put(name, game);
         }
         return gachaGameMap.get(name);
     }
@@ -274,6 +274,10 @@ public class Man10GachaAPI {
     public void reloadGacha(String gacha){
         gachaGameMap.remove(gacha);
         getGacha(gacha);
+    }
+
+    public void clearSavedGachas(){
+        gachaGameMap.clear();
     }
 
     public int renameGacha(String oldGacha, String newGacha){
@@ -314,7 +318,17 @@ public class Man10GachaAPI {
         if(ifGachaExists(game.getSettings().name)){
             File file = new File(plugin.getDataFolder(), "gacha" + File.separator + game.getSettings().name + ".yml");
             file.delete();
-            gachaGameMap.remove(game);
+            gachaGameMap.remove(game.getSettings().name);
+
+        }
+    }
+
+
+    public void deleteGachaFile(GachaGame game){
+        if(ifGachaExists(game.getSettings().name)){
+            File file = new File(plugin.getDataFolder(), "gacha" + File.separator + game.getSettings().name + ".yml");
+            file.delete();
+
         }
     }
 
@@ -342,10 +356,11 @@ public class Man10GachaAPI {
             createGacha(game);
             return;
         }
-        deleteGacha(game);
-        createGacha(game);
-        gachaGameCacheMap.remove(game.getSettings().name);
-        getGacha(game.getSettings().name);
+        new Thread(() -> {
+            deleteGachaFile(game);
+            createGacha(game);
+            getGacha(game.getSettings().name);
+        }).start();
     }
 
 

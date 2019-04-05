@@ -1,11 +1,15 @@
 package com.shojabon.man10gachav3.DataPackages;
 
+import com.google.gson.Gson;
 import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.GamePackages.Man10GachaAPI;
 import com.shojabon.man10gachav3.Man10GachaV3;
 import com.shojabon.man10gachav3.ToolPackages.SInventory;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
+import com.shojabon.man10gachav3.enums.GachaPaymentType;
+import org.apache.commons.codec.binary.Base64OutputStream;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -17,7 +21,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Random;
+import java.util.zip.GZIPOutputStream;
 
 public class GachaPlayGame {
     Inventory inv;
@@ -102,20 +109,82 @@ public class GachaPlayGame {
         t.start();
     }
 
+    private void log(GachaItemStack item) throws IOException {
+        String paymentItemData = "";
+        String paymentItemName = "";
+        int paymentItemAmount = 0;
+        GachaPayment itemStackPayment = getItemStackPayment();
+        if(itemStackPayment != null){
+            paymentItemData = new SItemStack(itemStackPayment.getItemStackPayment().getItemStack()).toBase64();
+            paymentItemName = itemStackPayment.getItemStackPayment().getItemStack().getType().name();
+            if(itemStackPayment.getItemStackPayment().getItemStack().getItemMeta().getDisplayName()  != null) paymentItemName = itemStackPayment.getItemStackPayment().getItemStack().getItemMeta().getDisplayName();
+            paymentItemAmount = itemStackPayment.getItemStackPayment().getAmount();
+        }
+        String winItemName = item.item.getType().name();
+        if(item.item.getItemMeta().getDisplayName()!=null) winItemName = item.item.getItemMeta().getDisplayName();
+        String query = "INSERT INTO gachav3_history (`id`,`gacha_name`,`player_name`,`player_uuid`,`payment_item_data`,`payment_item_name`,`payment_item_amount`,`payment_vault_value`,`win_item_data`,`win_item_name`,`win_item_amount`,`win_gacha_item_data`,`location`,`spin_time`,`spin_date_time`) VALUES " +
+                "('0','" + game.getSettings().name + "','" + p.getName() + "','" + p.getUniqueId() + "','" + paymentItemData + "','" + paymentItemName + "'," + paymentItemAmount + "," + getVaultAmount() + ",'"
+                + new SItemStack(item.item).toBase64() + "','" + winItemName + "'," + item.amount + ",'" + serialize(item.getStringData()) + "','" + getLocationString() + "',UNIX_TIMESTAMP(),FROM_UNIXTIME(UNIX_TIMESTAMP()));";
+        Man10GachaV3.mysql.execute(query);
+    }
+
+    private String getLocationString(){
+        Location l = p.getLocation();
+        return "World:" + l.getWorld().getName() + ",X:" + l.getX() + ",Y:" + l.getY() + ",Z:" + l.getZ() + ",Pi:" + l.getPitch() + ",Ya:" + l.getYaw();
+    }
+
+    private GachaPayment getItemStackPayment(){
+        for(GachaPayment payment : game.getPayments()){
+            if(payment.getType() == GachaPaymentType.ITEM){
+                return payment;
+            }
+        }
+        return null;
+    }
+
+    private int getVaultAmount(){
+        for(GachaPayment payment : game.getPayments()){
+            if(payment.getType() == GachaPaymentType.VAULT){
+                return (int) payment.getVaultPayment().getValue();
+            }
+        }
+        return 0;
+    }
+
+    public static String serialize(Object object) throws IOException {
+        ByteArrayOutputStream byteaOut = new ByteArrayOutputStream();
+        GZIPOutputStream gzipOut = null;
+        try {
+            gzipOut = new GZIPOutputStream(new Base64OutputStream(byteaOut));
+            gzipOut.write(new Gson().toJson(object).getBytes("UTF-8"));
+        } finally {
+            if (gzipOut != null) try { gzipOut.close(); } catch (IOException logOrIgnore) {}
+        }
+        return new String(byteaOut.toByteArray());
+    }
+
+
+
+
 
     private void winItem(GachaItemStack item){
         p.getInventory().addItem(new SItemStack(item.item).setAmount(item.amount).build());
         item.playerSound.playSoundToPlayer(p);
         item.broadcastSound.playSoundToServerExeptPlayer(p);
+
+        String itemName = item.item.getType().name();
+        if(item.item.getItemMeta().getDisplayName() != null) itemName = item.item.getItemMeta().getDisplayName();
         if(item.playerMessage != null){
             for(String message : item.playerMessage){
-                p.sendMessage(message);
+                p.sendMessage(message.replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replace("%TITLE%", game.getSettings().title)));
             }
+        }else{
+            p.sendMessage("§e§lおめでとうございます！あなたは『%ITEM%』§e§lを当てました！".replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replace("%TITLE%", game.getSettings().title)));
         }
         if(item.broadcastMessage != null){
             for(Player player : Bukkit.getOnlinePlayers()){
                 for(String message : item.broadcastMessage){
-                    player.sendMessage(message);
+                    player.sendMessage(message.replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replace("%TITLE%", game.getSettings().title)));
                 }
             }
         }
@@ -125,6 +194,11 @@ public class GachaPlayGame {
 
 
         Man10GachaAPI.inGamePlayerMap.remove(p.getUniqueId());
+        try {
+            log(item);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void rollItems(){
