@@ -225,7 +225,7 @@ public class Man10GachaAPI {
         return 0;
     }
 
-    private void createFileIfNotExists(File file){
+    public void createFileIfNotExists(File file){
         if(!file.exists()){
             try {
                 boolean b = file.createNewFile();
@@ -233,6 +233,9 @@ public class Man10GachaAPI {
                 e.printStackTrace();
             }
         }
+    }
+    public void createFolderIfNotExists(File file){
+        boolean b = file.mkdirs();
     }
 
     private void printPayment(ArrayList<GachaPayment> payments, FileConfiguration config){
@@ -455,6 +458,35 @@ public class Man10GachaAPI {
         }
         return messages;
     }
+
+    public String getPaymentSignStrig(String gacha){
+        int vault = getVaultAmount(getGacha(gacha));
+        GachaPayment itemPayment = getItemStackPayment(getGacha(gacha));
+        if(vault == 0 && itemPayment == null) return "Free";
+        if(vault != 0 && itemPayment == null) return String.valueOf(vault);
+        if(vault == 0 && itemPayment != null) return "Ticket";
+        if(vault != 0 && itemPayment != null) return vault + "&T";
+     return "null";
+    }
+
+    private GachaPayment getItemStackPayment(GachaGame game){
+        for(GachaPayment payment : game.getPayments()){
+            if(payment.getType() == GachaPaymentType.ITEM){
+                return payment;
+            }
+        }
+        return null;
+    }
+
+    private int getVaultAmount(GachaGame game){
+        for(GachaPayment payment : game.getPayments()){
+            if(payment.getType() == GachaPaymentType.VAULT){
+                return (int) payment.getVaultPayment().getValue();
+            }
+        }
+        return 0;
+    }
+
 
 
 

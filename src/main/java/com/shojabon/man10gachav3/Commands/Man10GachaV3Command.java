@@ -4,6 +4,8 @@ import com.shojabon.man10gachav3.DataPackages.GachaSettings;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsSelectionMenu;
 import com.shojabon.man10gachav3.Man10GachaV3;
 import com.shojabon.man10gachav3.ToolPackages.GachaVault;
+import com.shojabon.man10gachav3.ToolPackages.SItemStack;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,6 +29,7 @@ public class Man10GachaV3Command implements CommandExecutor {
         sender.sendMessage("§b§l/mgachav3 reload <name> §6ガチャをリロード");
         sender.sendMessage("§b§l/mgachav3 reloadall §6すべてのガチャをリロード");
         sender.sendMessage("§c§l==============================");
+        sender.sendMessage("§d§lV1.0 Release");
         sender.sendMessage("§6§lCreated By Sho0");
     }
 

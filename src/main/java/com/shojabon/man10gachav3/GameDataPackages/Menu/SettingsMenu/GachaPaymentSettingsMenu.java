@@ -38,6 +38,7 @@ public class GachaPaymentSettingsMenu {
     Player p;
     GachaGame game;
     Man10GachaAPI api;
+    boolean menuMove = false;
     GachaBannerDictionary dict = new GachaBannerDictionary();
     Function<InventoryClickEvent, String> cancelFunction;
     public GachaPaymentSettingsMenu(String gacha, Player p, Function<InventoryClickEvent, String> cancelFunction){
@@ -84,17 +85,7 @@ public class GachaPaymentSettingsMenu {
 
             @Override
             public void run() {
-                p.closeInventory();
-                Bukkit.getPluginManager().registerEvents(listener, plugin);
-                SInventory inve = new SInventory(3, "§b§l" + gacha + "金額設定");
-                inve.fillInventory(new SItemStack(Material.STAINED_GLASS_PANE).setDamage(11).setDisplayname(" ").build());
-                inve.setItem(11, new SItemStack(Material.BARRIER).setDisplayname("§c§lアイテム設定をクリア").build());
-                inve.setItem(14, new SItemStack(Material.BARRIER).setDisplayname("§c§l金額設定をクリア").build());
-                inve.setItem(26, new SItemStack(dict.getSymbol("back")).setDisplayname("§c§l戻る").build());
-                inv = inve.build();
-                render();
-
-                p.openInventory(inv);
+                new GachaPaymentSettingsMenu(gacha, p, cancelFunction);
             }
         }.runTaskLater(plugin, 1);
     }
@@ -108,6 +99,7 @@ public class GachaPaymentSettingsMenu {
             e.setCancelled(true);
             if(e.getRawSlot() <= 26 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             if(e.getRawSlot() == 26){
+                menuMove = true;
                 cancelFunction.apply(e);
                 return;
             }
@@ -120,6 +112,7 @@ public class GachaPaymentSettingsMenu {
                         amo = payment.getItemStackPayment().getAmount();
                     }
                 }
+                menuMove = true;
                 new ItemStackSelectorAPI("§b§l使用アイテム設定", p, noItem, amo, (event, itemStack) -> {
                     if(new SItemStack(new ItemStack(Material.CHEST)).setDisplayname("§c§l現在設定なし").build().isSimilar(itemStack)) {
                         reopen();
@@ -136,6 +129,7 @@ public class GachaPaymentSettingsMenu {
 
 
             if(e.getRawSlot() == 15){
+                menuMove = true;
                 new NumberInputAPI("§b§l使用金額設定", p, 9, (event, integer) -> {
                     game.updatePayments(GachaPaymentType.VAULT, new GachaPayment(new GachaVaultPayment(integer)));
                     reopen();
@@ -163,6 +157,9 @@ public class GachaPaymentSettingsMenu {
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close(p);
+            if(!menuMove){
+                cancelFunction.apply(null);
+            }
         }
 
     }

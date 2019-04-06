@@ -3,5 +3,4 @@ version: ${project.version}
 main: com.shojabon.man10gachav3.Man10GachaV3
 authors: [Sho0]
 commands:
- gachav3:
  mgachav3:

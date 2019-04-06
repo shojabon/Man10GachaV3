@@ -48,7 +48,9 @@ public class SignClickEvent implements Listener {
             return;
         }
         game.play(e.getPlayer());
-        e.getPlayer().sendMessage("§a§l=-=-=-=[支払い明細]=-=-=-=");
+        if(game.getPayments().size() != 0){
+            e.getPlayer().sendMessage("§a§l=-=-=-=[支払い明細]=-=-=-=");
+        }
         for(String s : plugin.api.getPayMessage(e.getPlayer(), game)){
             e.getPlayer().sendMessage(s);
         }

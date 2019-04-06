@@ -176,10 +176,10 @@ public class GachaPlayGame {
         if(item.item.getItemMeta().getDisplayName() != null) itemName = item.item.getItemMeta().getDisplayName();
         if(item.playerMessage != null){
             for(String message : item.playerMessage){
-                p.sendMessage(message.replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replace("%TITLE%", game.getSettings().title)));
+                p.sendMessage(message.replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§"))));
             }
         }else{
-            p.sendMessage("§e§lおめでとうございます！あなたは『%ITEM%』§e§lを当てました！".replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replace("%TITLE%", game.getSettings().title)));
+            p.sendMessage("§e§lおめでとうございます！あなたは『%ITEM%』§e§lを当てました！".replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§"))));
         }
         if(item.broadcastMessage != null){
             for(Player player : Bukkit.getOnlinePlayers()){

@@ -124,6 +124,7 @@ public class SoundSelectorAPI {
         @EventHandler
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
+            if(e.getRawSlot() <= 53 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             e.setCancelled(true);
             int r = e.getRawSlot();
             if(r == 15){
@@ -164,12 +165,14 @@ public class SoundSelectorAPI {
                 return;
             }
             if(r == 44) {
+                trans = true;
                 cancelFunction.apply(e);
                 return;
             }
             if(r == 28){
                 float vol = ((float) volu)/10;
                 float pit = ((float) pitc)/10;
+                trans = true;
                 String func = okFunction.apply(e, new GachaSound(sound, vol, pit));
                 if(func == null){
                     p.closeInventory();

@@ -138,7 +138,7 @@ public class GachaContainerSettingsMenu {
                         GachaItemStack gItemStack = new GachaItemStack(item);
                         gItemStack.amount = item.getAmount();
                         menu.game.setItemIndex(-1, gItemStack);
-                        menu.game.setStorageAmount(index, itemMap.get(new SItemStack(item).toBase64()));
+                        menu.game.setStorageAmount(index, itemMap.get(key));
                     }
                     reopen();
                     return null;

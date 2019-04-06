@@ -15,24 +15,25 @@ public class SignUpdateEvent implements Listener {
 
     @EventHandler
     public void onSignUpdate(SignChangeEvent e){
+        if(!e.getLine(0).equalsIgnoreCase("mgachav3")) return;
         if(!e.getPlayer().hasPermission("mgachav3.sign.create")) {
             e.getPlayer().sendMessage(plugin.prefix + "§4§lあなたには権限がありません");
             e.setCancelled(true);
             e.getBlock().breakNaturally();
             return;
         }
-        if(!e.getLine(0).equalsIgnoreCase("mgachav3")) return;
         if(!plugin.api.ifGachaExists(e.getLine(1))){
             e.getPlayer().sendMessage(plugin.prefix + "§c§lガチャが存在しません");
             e.setCancelled(true);
             e.getBlock().breakNaturally();
             return;
         }
+        String gachaname = e.getLine(1);
         //register process
         plugin.api.registerNewSign(new GachaSignData(e.getBlock().getLocation(), e.getLine(1)));
         e.setLine(0, "§d§l===============");
         e.setLine(1, "§b§l" + e.getLine(1));
-        e.setLine(2, e.getLine(2).replaceAll("&", "§"));
+        e.setLine(2, plugin.api.getPaymentSignStrig(gachaname));
         e.setLine(3, "§d§l===============");
     }
 

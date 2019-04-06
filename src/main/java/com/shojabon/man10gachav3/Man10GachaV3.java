@@ -43,11 +43,15 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
         saveDefaultConfig();
         api = new Man10GachaAPI();
         pluginConfig = getConfig();
-        databaseBootSequence();
-        createTables();
+        try{
+            databaseBootSequence();
+            createTables();
+        }catch (Exception e){
+        }
         prefix = pluginConfig.getString("prefix").replace("&", "§");
         api.loadSignFile();
         vault = new GachaVault();
+        api.createFolderIfNotExists(new File(getDataFolder() + File.separator + "gacha"));
         getCommand("mgachav3").setExecutor(new Man10GachaV3Command(this));
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
         Bukkit.getServer().getPluginManager().registerEvents(new SignUpdateEvent(this),this);
@@ -113,7 +117,7 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
         mysql = null;
     }
     public void createTables(){
-        String logTable = "CREATE TABLE IF NOT EXISTS `gachav3_history` (\n" +
+        String logTable = "CREATE TABLE `gachav3_history` (\n" +
                 "\t`id` INT(11) NOT NULL AUTO_INCREMENT,\n" +
                 "\t`gacha_name` VARCHAR(128) NULL DEFAULT NULL,\n" +
                 "\t`player_name` VARCHAR(128) NULL DEFAULT NULL,\n" +
@@ -139,28 +143,5 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
     }
     public void createLog(String message){
         Bukkit.getLogger().info("[Mgachav3]" + message);
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(command.getName().equalsIgnoreCase("gachav3")){
-            Player p = ((Player)sender);
-            if(args.length == 1){
-                if(args[0].equalsIgnoreCase("create")){
-                    a();
-                    return false;
-                }
-                if(args[0].equalsIgnoreCase("play")){
-                    api.getGacha("test").play(p);
-                    return false;
-                }
-                if(args[0].equalsIgnoreCase("test")){
-                }
-            }
-            //a();
-
-            new GachaSettingsSelectionMenu(((Player)sender));
-        }
-        return false;
     }
 }

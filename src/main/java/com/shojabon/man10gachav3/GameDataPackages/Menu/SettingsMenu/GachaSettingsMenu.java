@@ -81,9 +81,19 @@ public class GachaSettingsMenu {
             new Thread(() -> {
                 if(e.getRawSlot() == 44) new GachaSettingsSelectionMenu(p);
                 if(e.getRawSlot() == 29) {
-                    new GachaGeneralSettingsMenu(gacha, p, 0, 0,event -> {
-                        api.updateGacha(api.getGacha(gacha));
-                        reopenMenu();
+                    new GachaGeneralSettingsMenu(gacha, p, 0, 0,game -> {
+                        if(game.getSettings().name.equalsIgnoreCase(gacha)){
+                            api.updateGacha(api.getGacha(gacha));
+                            reopenMenu();
+                        }else{
+                            new BukkitRunnable(){
+
+                                @Override
+                                public void run() {
+                                    new GachaSettingsMenu(game.getSettings().name, p);
+                                }
+                            }.runTaskLater(plugin, 1);
+                        }
                         return null;
                     });
                 }

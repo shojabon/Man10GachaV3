@@ -23,6 +23,7 @@ public class ItemStackSelectorAPI {
     Listener listener = new Listener();
     JavaPlugin plugin;
     Player p;
+    boolean movingMenu = false;
     BiFunction<InventoryClickEvent, ItemStack, String> okFunction;
     Function<InventoryClickEvent, String> cancelFunction;
     public ItemStackSelectorAPI(String title, Player p, ItemStack currentItem, int amount, BiFunction<InventoryClickEvent, ItemStack, String> okFunction, Function<InventoryClickEvent, String> cancelFunction){
@@ -46,7 +47,6 @@ public class ItemStackSelectorAPI {
 
     class Listener implements org.bukkit.event.Listener
     {
-
         @EventHandler
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
@@ -59,10 +59,12 @@ public class ItemStackSelectorAPI {
                 return;
             }
             if(r == 26){
+                movingMenu = true;
                 cancelFunction.apply(e);
                 return;
             }
             if(r == 11 || r == 12){
+                movingMenu = true;
                 String res = okFunction.apply(e, inv.getItem(13));
                 if(res == null){
                     e.getWhoClicked().closeInventory();
@@ -70,6 +72,7 @@ public class ItemStackSelectorAPI {
                 return;
             }
             if(r == 14 || r == 15){
+                movingMenu = true;
                 cancelFunction.apply(e);
             }
         }
@@ -78,7 +81,9 @@ public class ItemStackSelectorAPI {
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close((Player) e.getPlayer());
-            cancelFunction.apply(null);
+            if(!movingMenu){
+                cancelFunction.apply(null);
+            }
         }
 
     }

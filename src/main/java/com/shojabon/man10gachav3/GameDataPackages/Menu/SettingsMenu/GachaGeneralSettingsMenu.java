@@ -28,8 +28,8 @@ public class GachaGeneralSettingsMenu {
     GachaGame game;
     int startCategory;
     int startPage;
-    Function<InventoryClickEvent, String> clickBackFunction;
-    public GachaGeneralSettingsMenu(String gacha, Player p, int startCategory, int startPage, Function<InventoryClickEvent, String> clickBackFunction){
+    Function<GachaGame, String> clickBackFunction;
+    public GachaGeneralSettingsMenu(String gacha, Player p, int startCategory, int startPage, Function<GachaGame, String> clickBackFunction){
         this.gacha = gacha;
         this.p = p;
         this.clickBackFunction = clickBackFunction;
@@ -37,7 +37,7 @@ public class GachaGeneralSettingsMenu {
         this.startPage = startPage;
         api = new Man10GachaAPI();
         game =  Man10GachaAPI.gachaGameMap.get(gacha);
-        createMenu(0, 0);
+        createMenu(startCategory, startPage);
     }
     public void createMenu(int startCategory, int startPage){
         p.closeInventory();
@@ -65,7 +65,7 @@ public class GachaGeneralSettingsMenu {
             settings(categorizedMenuLocation.getCategory(), categorizedMenuLocation.getNum());
             return null;
         }, event -> {
-            clickBackFunction.apply(null);
+            clickBackFunction.apply(game);
             return null;
         }, startCategory, startPage);
     }
