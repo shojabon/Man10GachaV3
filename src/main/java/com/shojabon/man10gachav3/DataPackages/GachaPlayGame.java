@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -42,7 +43,7 @@ public class GachaPlayGame {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
 
 
-        SInventory invee = new SInventory(3, game.getSettings().title);
+        SInventory invee = new SInventory(3, game.getSettings().title.replaceAll("&", "§"));
         invee.fillInventory(new SItemStack(Material.STAINED_GLASS_PANE).setDamage(11).setDisplayname(" ").build());
         invee.setItem(new int[]{4,22}, new SItemStack(Material.STAINED_GLASS_PANE).setDamage(14).setDisplayname("§c§l||").build());
         invee.setLine(1, new ItemStack(Material.AIR));
@@ -69,13 +70,13 @@ public class GachaPlayGame {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                int randSize = game.getStorage().size()-1;
+                int randSize = game.getStorage().size();
                 if(randSize <= 0) randSize = 1;
                 int index = new Random().nextInt(randSize);
-                ItemStack nextItem = new SItemStack(game.getStorage().get(index).item).setAmount(game.getStorage().get(index).amount).build();
+                SItemStack nextItem = new SItemStack(game.getItemIndex().get(game.getStorage().get(index)).item).setAmount(game.getItemIndex().get(game.getStorage().get(index)).amount);
                 rollItems();
-                inv.setItem(17, nextItem);
-                itemStacks[8] = game.getStorage().get(index);
+                inv.setItem(17, nextItem.build());
+                itemStacks[8] = game.getItemIndex().get(game.getStorage().get(index));
                 if(i >= 150){
                     speed += 1;
                 }
@@ -165,29 +166,71 @@ public class GachaPlayGame {
 
 
 
+    private String placeHolder(GachaItemStack item, String message){
+        String itemName = item.item.getType().name();
+        if(item.item.getItemMeta().getDisplayName() != null) itemName = item.item.getItemMeta().getDisplayName();
+        return message.replaceAll("%PLAYER%", p.getName()).replaceAll("%UUID%", p.getUniqueId().toString()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§")));
+    }
 
 
     private void winItem(GachaItemStack item){
-        p.getInventory().addItem(new SItemStack(item.item).setAmount(item.amount).build());
+        if(!item.giveItem){
+            p.getInventory().addItem(new SItemStack(item.item).setAmount(item.amount).build());
+        }
         item.playerSound.playSoundToPlayer(p);
         item.broadcastSound.playSoundToServerExeptPlayer(p);
 
-        String itemName = item.item.getType().name();
-        if(item.item.getItemMeta().getDisplayName() != null) itemName = item.item.getItemMeta().getDisplayName();
-        if(item.playerMessage != null){
+        if(item.playerMessage.size() != 0){
             for(String message : item.playerMessage){
-                p.sendMessage(message.replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§"))));
+                p.sendMessage(placeHolder(item, message));
             }
         }else{
-            p.sendMessage("§e§lおめでとうございます！あなたは『%ITEM%』§e§lを当てました！".replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§"))));
+            p.sendMessage(placeHolder(item, "§e§lおめでとうございます！あなたは『%ITEM%§e§l』を当てました！"));
         }
-        if(item.broadcastMessage != null){
+        if(item.broadcastMessage.size() != 0){
             for(Player player : Bukkit.getOnlinePlayers()){
                 for(String message : item.broadcastMessage){
-                    player.sendMessage(message.replaceAll("%PLAYER%", p.getName()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replace("%TITLE%", game.getSettings().title)));
+                    player.sendMessage(placeHolder(item, message));
                 }
             }
         }
+
+        if(item.playerCommand.size() != 0){
+            for(String command : item.playerCommand){
+                p.performCommand(placeHolder(item, command).replaceFirst("/", ""));
+            }
+        }
+
+        if(item.serverCommand.size() != 0){
+            for(String command : item.serverCommand){
+                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(),placeHolder(item, command).replaceFirst("/", ""));
+            }
+        }
+
+        if(item.items.size() != 0){
+            for(ItemStack singleItem : item.items){
+                p.getInventory().addItem(singleItem.clone());
+            }
+        }
+
+        if(item.playerTitle.usable()){
+            item.playerTitle.playTitleToPlayer(p);
+        }
+        if(item.serverTitle.usable()){
+            item.serverTitle.playTitleToServerExeptPlayer(p);
+        }
+
+        if(item.killPlayer) {
+            p.setHealth(0.0);
+        }
+
+        if(item.teleport.useable()) item.teleport.teleportPlayerToLocation(p);
+
+
+
+
+
+
 
 
 
@@ -206,7 +249,7 @@ public class GachaPlayGame {
             inv.setItem(slots[i], inv.getItem(slots[i+1]));
             itemStacks[i] = itemStacks[i+1];
         }
-        new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1).playSoundToPlayer(p);
+        game.getSettings().spinSound.playSoundToPlayer(p);
     }
 
     private void close(Player p){

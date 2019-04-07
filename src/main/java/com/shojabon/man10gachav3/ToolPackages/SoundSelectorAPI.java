@@ -54,8 +54,8 @@ public class SoundSelectorAPI {
         SInventory inventory = new SInventory(5,title);
         inventory.fillInventory(new SItemStack(Material.STAINED_GLASS_PANE).setDisplayname(" ").setDamage(11).build());
 
-        inventory.setItem(15, new SItemStack(dictionary.getSymbol("plus")).setDisplayname("§b§lヴォリューム +").build());
-        inventory.setItem(16, new SItemStack(dictionary.getSymbol("minus")).setDisplayname("§b§lヴォリューム -").build());
+        inventory.setItem(15, new SItemStack(dictionary.getSymbol("plus")).setDisplayname("§b§lボォリューム +").build());
+        inventory.setItem(16, new SItemStack(dictionary.getSymbol("minus")).setDisplayname("§b§lボォリューム -").build());
         inventory.setItem(33, new SItemStack(dictionary.getSymbol("plus")).setDisplayname("§b§lピッチ +").build());
         inventory.setItem(34, new SItemStack(dictionary.getSymbol("minus")).setDisplayname("§b§lピッチ -").build());
 
@@ -113,7 +113,7 @@ public class SoundSelectorAPI {
         new BukkitRunnable(){
             @Override
             public void run() {
-                new SoundSelectorAPI(title, p, volu, pitc, sound, okFunction, cancelFunction);
+                new SoundSelectorAPI(title, p, ((float)volu)/10, ((float)pitc)/10, sound, okFunction, cancelFunction);
             }
         }.runTaskLater(Bukkit.getPluginManager().getPlugin("Man10GachaV3"), 1);
     }
@@ -124,7 +124,7 @@ public class SoundSelectorAPI {
         @EventHandler
         public void onClick(InventoryClickEvent e){
             if(e.getWhoClicked().getUniqueId() != p.getUniqueId()) return;
-            if(e.getRawSlot() <= 53 && e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
+            if(e.getRawSlot() <= 53 && e.getRawSlot() != 10 &&e.getRawSlot() != -999 && e.getInventory().getItem(e.getRawSlot()) != null) new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1 ,1).playSoundToPlayer((Player) e.getWhoClicked());
             e.setCancelled(true);
             int r = e.getRawSlot();
             if(r == 15){
@@ -170,6 +170,15 @@ public class SoundSelectorAPI {
                 return;
             }
             if(r == 28){
+                if(sound == null){
+                    trans = true;
+                    String func = okFunction.apply(e, new GachaSound());
+                    if(func == null){
+                        p.closeInventory();
+                        return;
+                    }
+                    return;
+                }
                 float vol = ((float) volu)/10;
                 float pit = ((float) pitc)/10;
                 trans = true;

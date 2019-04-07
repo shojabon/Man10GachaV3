@@ -1,5 +1,6 @@
 package com.shojabon.man10gachav3.DataPackages;
 
+import com.mysql.fabric.xmlrpc.base.Array;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -13,14 +14,26 @@ import java.util.Map;
  */
 public class GachaItemStack implements Serializable {
     public ItemStack item;
-    public ArrayList<String> broadcastMessage = null;
-    public ArrayList<String> playerMessage = null;
+    public ArrayList<String> broadcastMessage = new ArrayList<>();
+    public ArrayList<String> playerMessage = new ArrayList<>();
 
-    public ArrayList<ItemStack> items = null;
+    public ArrayList<ItemStack> items = new ArrayList<>();
     public int amount = 1;
 
     public GachaSound broadcastSound = new GachaSound();
     public GachaSound playerSound = new GachaSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+
+    public ArrayList<String> playerCommand = new ArrayList<>();
+    public ArrayList<String> serverCommand = new ArrayList<>();
+
+    public GachaTitleText playerTitle = new GachaTitleText();
+    public GachaTitleText serverTitle = new GachaTitleText();
+
+    public boolean giveItem = true;
+    public boolean killPlayer = false;
+
+    public GachaTeleport teleport = new GachaTeleport();
+
 
 
     public GachaItemStack(ItemStack item, int amount){
@@ -46,6 +59,27 @@ public class GachaItemStack implements Serializable {
     private void loadMap(Map<String, Object> settings){
         for(String key: settings.keySet()){
             switch(key){
+                case "teleport":
+                    teleport = ((GachaTeleport) settings.get(key));
+                    break;
+                case "giveItem":
+                    giveItem = ((Boolean) settings.get(key));
+                    break;
+                case "killPlayer":
+                    killPlayer = ((Boolean) settings.get(key));
+                    break;
+                case "playerTitle":
+                    playerTitle = ((GachaTitleText) settings.get(key));
+                    break;
+                case "serverTitle":
+                    serverTitle = ((GachaTitleText) settings.get(key));
+                    break;
+                case "serverCommand":
+                    serverCommand = ((ArrayList<String>) settings.get(key));
+                    break;
+                case "playerCommand":
+                    playerCommand = ((ArrayList<String>) settings.get(key));
+                    break;
                 case "item":
                     item = new SItemStack(String.valueOf(settings.get(key))).build();
                     break;
@@ -98,21 +132,42 @@ public class GachaItemStack implements Serializable {
     public Map<String, Object> getStringData(){
         Map<String, Object> objects = new HashMap<>();
         objects.put("item", new SItemStack(this.item).setAmount(1).toBase64());
-        if(broadcastMessage != null){
+        if(broadcastMessage.size() != 0){
             objects.put("broadcastMessage", this.broadcastMessage);
         }
         if(amount != 1 && amount > 0){
             objects.put("amount", this.amount);
         }
-        if(playerMessage != null){
+        if(playerMessage.size() != 0){
             objects.put("playerMessage", this.playerMessage);
         }
-        if(items != null){
-            ArrayList<String> items = new ArrayList<>();
+        if(items.size() != 0){
+            ArrayList<String> itemsOut = new ArrayList<>();
             for(ItemStack item: this.items){
-                items.add(new SItemStack(item).toBase64());
+                itemsOut.add(new SItemStack(item.clone()).toBase64());
             }
-            objects.put("items", items);
+            objects.put("items", itemsOut);
+        }
+        if(teleport.useable()){
+            objects.put("teleport", this.teleport);
+        }
+        if(!giveItem){
+            objects.put("giveItem", this.giveItem);
+        }
+        if(killPlayer){
+            objects.put("killPlayer", this.killPlayer);
+        }
+        if(playerTitle.usable()){
+            objects.put("playerTitle", this.playerTitle);
+        }
+        if(serverTitle.usable()){
+           objects.put("serverTitle", this.serverTitle);
+        }
+        if(serverCommand.size() != 0){
+            objects.put("playerCommand", this.playerCommand);
+        }
+        if(playerCommand.size() != 0){
+            objects.put("playerCommand", this.playerCommand);
         }
         if(!broadcastSound.getStringData().equals(new GachaSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 1).getStringData()) && !broadcastSound.getStringData().equals(new GachaSound().getStringData())){
             objects.put("broadcastSound", this.broadcastSound);

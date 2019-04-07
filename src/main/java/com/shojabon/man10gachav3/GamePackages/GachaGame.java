@@ -27,9 +27,9 @@ public class GachaGame {
 
     private GachaSettings settings;
     private ArrayList<GachaPayment> payments = new ArrayList<>();
+    private ArrayList<Integer> storage = new ArrayList<>();
     private Listener listener = new Listener();
     private ArrayList<GachaItemStack> itemIndex;
-    private ArrayList<GachaItemStack> storage = new ArrayList<>();
     private HashMap<UUID, Inventory> inventoryMap = new HashMap<>();
     private HashMap<Integer, Integer> storageAmount = new HashMap<>();
     private JavaPlugin plugin;
@@ -98,6 +98,44 @@ public class GachaGame {
             Map<String, Object> map = new HashMap<>();
             for(String key: config.getConfigurationSection("index." + numKey).getKeys(false)){
                 switch (key){
+                    case "items":
+                        ArrayList<String> items = new ArrayList<>(config.getStringList("index." + numKey + "." + key));
+                        map.put(key, items);
+                        break;
+                    case "teleport":
+                        map.put(key, new GachaTeleport(
+                                config.getString("index." + numKey + "." + key + ".world"),
+                                config.getDouble("index." + numKey + "." + key + ".x"),
+                                config.getDouble("index." + numKey + "." + key + ".y"),
+                                config.getDouble("index." + numKey + "." + key + ".z"),
+                                Float.valueOf(config.getString("index." + numKey + "." + key + ".pitch")),
+                                Float.valueOf(config.getString("index." + numKey + "." + key + ".yaw"))
+                        ));
+                        break;
+                    case "giveItem":
+                        map.put(key, config.getBoolean("index." + numKey + "." + key));
+                        break;
+                    case "killPlayer":
+                        map.put(key, config.getBoolean("index." + numKey + "." + key));
+                        break;
+                    case "playerTitle":
+                        map.put(key, new GachaTitleText(
+                                config.getString("index." + numKey + "." + key + ".mainText"),
+                                config.getString("index." + numKey + "." + key + ".subText"),
+                                Integer.parseInt(config.getString("index." + numKey + "." + key + ".fadeInTime")),
+                                Integer.parseInt(config.getString("index." + numKey + "." + key + ".time")),
+                                Integer.parseInt(config.getString("index." + numKey + "." + key + ".fadeOutTime"))
+                        ));
+                        break;
+                    case "serverTitle":
+                        map.put(key, new GachaTitleText(
+                                config.getString("index." + numKey + "." + key + ".mainText"),
+                                config.getString("index." + numKey + "." + key + ".subText"),
+                                Integer.parseInt(config.getString("index." + numKey + "." + key + ".fadeInTime")),
+                                Integer.parseInt(config.getString("index." + numKey + "." + key + ".time")),
+                                Integer.parseInt(config.getString("index." + numKey + "." + key + ".fadeOutTime"))
+                        ));
+                        break;
                     case "item":
                         map.put(key, new SItemStack(config.getString("index." + numKey + "." + key)).toBase64());
                         break;
@@ -113,6 +151,12 @@ public class GachaGame {
                                 Float.valueOf(config.getString("index." + numKey + "." + key + ".volume")),
                                 Float.valueOf(config.getString("index." + numKey + "." + key + ".pitch"))
                         ));
+                        break;
+                    case "playerCommand":
+                        map.put(key, config.getStringList("index." + numKey + "." + key));
+                        break;
+                    case "serverCommand":
+                        map.put(key, config.getStringList("index." + numKey + "." + key));
                         break;
                     case "playerSound":
                         GachaSound sound = new GachaSound(
@@ -145,7 +189,7 @@ public class GachaGame {
         storage = renderStorage();
     }
 
-    public ArrayList<GachaItemStack> getStorage() {
+    public ArrayList<Integer> getStorage() {
         return storage;
     }
     private class Listener implements org.bukkit.event.Listener {
@@ -182,12 +226,24 @@ public class GachaGame {
         return payments;
     }
 
-    public ArrayList<GachaItemStack> renderStorage(){
+    public ArrayList<Integer> renderStorage(){
+        ArrayList<Integer> items = new ArrayList<>();
+        for(int i =0; i < storageAmount.keySet().size(); i++){
+            int key = (int) storageAmount.keySet().toArray()[i];
+            for(int ii =0; ii < storageAmount.get(key); ii++){
+                items.add(key);
+            }
+
+        }
+        return items;
+    }
+
+    public ArrayList<GachaItemStack> renderStorageItem(){
         ArrayList<GachaItemStack> items = new ArrayList<>();
         for(int i =0; i < storageAmount.keySet().size(); i++){
             int key = (int) storageAmount.keySet().toArray()[i];
             for(int ii =0; ii < storageAmount.get(key); ii++){
-                items.add(itemIndex.get(key));
+                items.add(getItemIndex().get(key));
             }
 
         }

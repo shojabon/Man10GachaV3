@@ -1,6 +1,7 @@
 package com.shojabon.man10gachav3.Commands;
 
 import com.shojabon.man10gachav3.DataPackages.GachaSettings;
+import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsMenu;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsSelectionMenu;
 import com.shojabon.man10gachav3.Man10GachaV3;
 import com.shojabon.man10gachav3.ToolPackages.GachaVault;
@@ -23,13 +24,14 @@ public class Man10GachaV3Command implements CommandExecutor {
     public void help(CommandSender sender){
         sender.sendMessage("§c§l===========§6[§aMg§fac§dha§5V3§6]§f§c§l===========");
         sender.sendMessage("§b§l/mgachav3 setting §6ガチャ設定画面");
+        sender.sendMessage("§b§l/mgachav3 setting <name> §6ガチャ設定画面");
         sender.sendMessage("§b§l/mgachav3 create <name> §6ガチャを作成");
         sender.sendMessage("§b§l/mgachav3 delete <name> §6ガチャを削除");
         sender.sendMessage("§b§l/mgachav3 creload §6設定をリロード");
         sender.sendMessage("§b§l/mgachav3 reload <name> §6ガチャをリロード");
         sender.sendMessage("§b§l/mgachav3 reloadall §6すべてのガチャをリロード");
         sender.sendMessage("§c§l==============================");
-        sender.sendMessage("§d§lV1.0 Release");
+        sender.sendMessage("§d§lV1.1 Release");
         sender.sendMessage("§6§lCreated By Sho0");
     }
 
@@ -76,6 +78,19 @@ public class Man10GachaV3Command implements CommandExecutor {
                 return false;
             }
         }else if(args.length == 2){
+            if(args[0].equalsIgnoreCase("setting")){
+                if(!sender.hasPermission("mgachav3.command.setting")){
+                    sender.sendMessage(Man10GachaV3.prefix + "§4§lあなたには権限がありません");
+                    return false;
+                }
+                if(!plugin.api.ifGachaExists(args[1])){
+                    sender.sendMessage(Man10GachaV3.prefix + "§4§lすでにガチャが存在しません");
+                    return false;
+                }
+                new GachaSettingsMenu(args[1], ((Player)sender));
+
+                return false;
+            }
             if(args[0].equalsIgnoreCase("create")){
                 if(!sender.hasPermission("mgachav3.command.create")){
                     sender.sendMessage(Man10GachaV3.prefix + "§4§lあなたには権限がありません");
@@ -87,6 +102,7 @@ public class Man10GachaV3Command implements CommandExecutor {
                 }
                 plugin.api.createGacha(new GachaSettings(args[1]), new ArrayList<>(), new ArrayList<>());
                 sender.sendMessage(Man10GachaV3.prefix + "§a§lガチャが作成されました");
+                plugin.api.reloadGacha(args[1]);
                 return false;
             }
             if(args[0].equalsIgnoreCase("delete")){

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.BiFunction;
@@ -44,6 +45,15 @@ public class LongTextInputAPI {
 
     class Listener implements org.bukkit.event.Listener
     {
+
+        @EventHandler
+        public void onPlayerExit(PlayerQuitEvent e){
+            cancelFunction.apply(e.getPlayer());
+            for(int i = 0;i < 10;i++){
+                p.sendMessage("");
+            }
+            close();
+        }
 
         @EventHandler
         public void onCommand(PlayerCommandPreprocessEvent e){

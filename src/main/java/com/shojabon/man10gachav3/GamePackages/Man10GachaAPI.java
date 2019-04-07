@@ -175,7 +175,52 @@ public class Man10GachaAPI {
     private void printItemIndex(Map<String, Object> itemData, FileConfiguration config, int id){
         for(String key: itemData.keySet()){
             switch (key) {
-                case "broadcastSound":
+                case "teleport": {
+                    Map<String, String> map = ((GachaTeleport) itemData.get(key)).getStringData();
+                    config.set("index." + id + "." + key + ".world", map.get("world"));
+                    config.set("index." + id + "." + key + ".x", map.get("x"));
+                    config.set("index." + id + "." + key + ".y", map.get("y"));
+                    config.set("index." + id + "." + key + ".z", map.get("z"));
+                    config.set("index." + id + "." + key + ".pitch", map.get("pitch"));
+                    config.set("index." + id + "." + key + ".yaw", map.get("yaw"));
+                    break;
+                }
+                case "items": {
+                    ArrayList<String> out = new ArrayList<>();
+                    ArrayList<String> items = (ArrayList<String>) itemData.get(key);
+                    for (String item : items) {
+                        out.add(new SItemStack(item).toBase64());
+                    }
+                    config.set("index." + id + "." + key, out);
+                    break;
+                }
+                case "playerTitle":{
+                    GachaTitleText text = (GachaTitleText) itemData.get(key);
+                    Map<String, String> map = text.getStringData();
+                    config.set("index." + id + "." + key + ".mainText", map.get("mainText"));
+                    config.set("index." + id + "." + key + ".subText", map.get("subText"));
+                    config.set("index." + id + "." + key + ".fadeInTime", map.get("fadeInTime"));
+                    config.set("index." + id + "." + key + ".time", map.get("time"));
+                    config.set("index." + id + "." + key + ".fadeOutTime", map.get("fadeOutTime"));
+                    break;
+                }
+                case "serverTitle": {
+                    GachaTitleText text = (GachaTitleText) itemData.get(key);
+                    Map<String, String> map = text.getStringData();
+                    config.set("index." + id + "." + key + ".mainText", map.get("mainText"));
+                    config.set("index." + id + "." + key + ".subText", map.get("subText"));
+                    config.set("index." + id + "." + key + ".fadeInTime", map.get("fadeInTime"));
+                    config.set("index." + id + "." + key + ".time", map.get("time"));
+                    config.set("index." + id + "." + key + ".fadeOutTime", map.get("fadeOutTime"));
+                    break;
+                }
+                case "broadcastSound":{
+                    Map<String, String> map = ((GachaSound) itemData.get(key)).getStringData();
+                    config.set("index." + id + "." + key + ".sound", map.get("sound"));
+                    config.set("index." + id + "." + key + ".volume", map.get("volume"));
+                    config.set("index." + id + "." + key + ".pitch", map.get("pitch"));
+                    break;
+                }
                 case "playerSound": {
                     Map<String, String> map = ((GachaSound) itemData.get(key)).getStringData();
                     config.set("index." + id + "." + key + ".sound", map.get("sound"));
@@ -336,7 +381,7 @@ public class Man10GachaAPI {
     }
 
     public void createGacha(GachaGame game){
-        createGacha(game.getSettings(), game.getPayments(), game.renderStorage());
+        createGacha(game.getSettings(), game.getPayments(), game.renderStorageItem());
     }
 
     public ArrayList<GachaItemStack> compressItemStackList(ArrayList<GachaItemStack> arr){

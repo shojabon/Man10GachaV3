@@ -36,7 +36,7 @@ public class SignClickEvent implements Listener {
             return;
         }
         if(!plugin.api.ifPlayerHasEnoughForPayment(e.getPlayer(), game)){
-            e.getPlayer().sendMessage("§6§l=-=-=-=[§f" + game.getSettings().title+ "§6§l]=-=-=-=");
+            e.getPlayer().sendMessage("§6§l=-=-=-=[§f" + game.getSettings().title.replaceAll("&", "§") + "§6§l]=-=-=-=");
             for(String s : plugin.api.getLackingPaymentMessage(e.getPlayer(),game)){
                 e.getPlayer().sendMessage(s);
             }

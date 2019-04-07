@@ -27,6 +27,7 @@ public class BooleanSelectorAPI {
     String title;
     ItemStack itemsToDisplay;
     boolean current;
+    boolean movingMenu = false;
     Function<InventoryClickEvent, String> backFunction;
     BiFunction<InventoryClickEvent, Boolean, String> biFunction;
     public BooleanSelectorAPI(String title, Player p, ItemStack itemToDisplay, boolean current, BiFunction<InventoryClickEvent, Boolean, String> biFunction, Function<InventoryClickEvent, String> backFunction){
@@ -78,10 +79,12 @@ public class BooleanSelectorAPI {
             e.setCancelled(true);
             int s = e.getRawSlot();
             if(s == 44){
+                movingMenu = true;
                 backFunction.apply(e);
                 return;
             }
             if(s == 31){
+                movingMenu = true;
                 biFunction.apply(e, current);
                 return;
             }
@@ -100,7 +103,9 @@ public class BooleanSelectorAPI {
         public void onClose(InventoryCloseEvent e){
             if(e.getPlayer().getUniqueId() != p.getUniqueId()) return;
             close((Player) e.getPlayer());
-            backFunction.apply(null);
+            if(!movingMenu){
+                backFunction.apply(null);
+            }
         }
 
     }
