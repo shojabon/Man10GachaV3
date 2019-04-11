@@ -167,14 +167,17 @@ public class GachaPlayGame {
 
 
     private String placeHolder(GachaItemStack item, String message){
-        String itemName = item.item.getType().name();
-        if(item.item.getItemMeta().getDisplayName() != null) itemName = item.item.getItemMeta().getDisplayName();
-        return message.replaceAll("%PLAYER%", p.getName()).replaceAll("%UUID%", p.getUniqueId().toString()).replaceAll("%ITEM%", itemName).replaceAll("%AMOUNT%", String.valueOf(item.amount).replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§")));
+        SItemStack sItem = new SItemStack(item.item.clone());
+        return message.replace("%ITEM%", sItem.getDisplayName())
+                .replaceAll("%PLAYER%", p.getName())
+                .replaceAll("%UUID%", p.getUniqueId().toString())
+                .replaceAll("%AMOUNT%", String.valueOf(item.amount)
+                        .replaceAll("%TITLE%", game.getSettings().title.replaceAll("&", "§")));
     }
 
 
     private void winItem(GachaItemStack item){
-        if(!item.giveItem){
+        if(item.giveItem){
             p.getInventory().addItem(new SItemStack(item.item).setAmount(item.amount).build());
         }
         item.playerSound.playSoundToPlayer(p);

@@ -31,6 +31,12 @@ public class SItemStack {
         this.item = itemFromBase64(data);
     }
 
+    public String getDisplayName(){
+        String a = item.getItemMeta().getDisplayName();
+        if(a == null) return item.getType().name();
+        return a;
+    }
+
     private ItemStack itemFromBase64(String data) {
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));

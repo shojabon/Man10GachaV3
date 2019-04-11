@@ -65,7 +65,7 @@ public class GachaItemStackSettingsMenu {
         generalSettingsItem.add(new SItemStack(Material.CHEST).setDisplayname("§6§l§nストレージ個数設定設定").addLore("§b§l現在設定:" + menu.game.getStorageAmount().get(index)+ " §b§l").build());
         generalSettingsItem.add(renderItemList(new SItemStack(Material.COMMAND).setDisplayname("§e§l§nプレイヤー実行コマンド設定"), gItemStack.playerCommand));
         generalSettingsItem.add(renderItemList(new SItemStack(Material.COMMAND).setDisplayname("§e§l§nサーバー実行コマンド設定"), gItemStack.serverCommand));
-        generalSettingsItem.add(new SItemStack(Material.CHEST).setDisplayname("§6§l§nアイテム排出禁止設定").addLore("§b§l現在設定：" + gItemStack.giveItem).build());
+        generalSettingsItem.add(new SItemStack(Material.DROPPER).setDisplayname("§6§l§nアイテム排出禁止設定").addLore("§b§l現在設定：" + gItemStack.giveItem).build());
         SItemStack items = new SItemStack(Material.NAME_TAG).setAmount(10).setDisplayname("§c§l§nアイテム複数排出設定");
         if(gItemStack.items != null){
             for(ItemStack item: gItemStack.items){
