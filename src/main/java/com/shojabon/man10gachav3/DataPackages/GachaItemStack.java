@@ -29,7 +29,7 @@ public class GachaItemStack implements Serializable {
     public GachaTitleText playerTitle = new GachaTitleText();
     public GachaTitleText serverTitle = new GachaTitleText();
 
-    public boolean giveItem = true;
+    public boolean dontGiveItem = false;
     public boolean killPlayer = false;
 
     public GachaTeleport teleport = new GachaTeleport();
@@ -63,7 +63,7 @@ public class GachaItemStack implements Serializable {
                     teleport = ((GachaTeleport) settings.get(key));
                     break;
                 case "giveItem":
-                    giveItem = ((Boolean) settings.get(key));
+                    dontGiveItem = ((Boolean) settings.get(key));
                     break;
                 case "killPlayer":
                     killPlayer = ((Boolean) settings.get(key));
@@ -151,11 +151,11 @@ public class GachaItemStack implements Serializable {
         if(teleport.useable()){
             objects.put("teleport", this.teleport);
         }
-        if(!giveItem){
-            objects.put("giveItem", this.giveItem);
+        if(dontGiveItem){
+            objects.put("giveItem", this.dontGiveItem);
         }
         if(killPlayer){
-            objects.put("killPlayer", this.killPlayer);
+            objects.put("killPlayer", true);
         }
         if(playerTitle.usable()){
             objects.put("playerTitle", this.playerTitle);

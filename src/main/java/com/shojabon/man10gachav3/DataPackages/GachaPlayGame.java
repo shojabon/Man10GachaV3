@@ -177,7 +177,7 @@ public class GachaPlayGame {
 
 
     private void winItem(GachaItemStack item){
-        if(item.giveItem){
+        if(!item.dontGiveItem){
             p.getInventory().addItem(new SItemStack(item.item).setAmount(item.amount).build());
         }
         item.playerSound.playSoundToPlayer(p);
