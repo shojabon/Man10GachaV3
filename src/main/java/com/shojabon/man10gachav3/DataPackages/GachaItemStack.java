@@ -164,7 +164,7 @@ public class GachaItemStack implements Serializable {
            objects.put("serverTitle", this.serverTitle);
         }
         if(serverCommand.size() != 0){
-            objects.put("playerCommand", this.playerCommand);
+            objects.put("serverCommand", this.serverCommand);
         }
         if(playerCommand.size() != 0){
             objects.put("playerCommand", this.playerCommand);

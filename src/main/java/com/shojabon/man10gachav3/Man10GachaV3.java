@@ -128,7 +128,7 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
                 "\t`payment_vault_value` BIGINT(20) NULL DEFAULT NULL,\n" +
                 "\t`win_item_data` LONGTEXT NULL,\n" +
                 "\t`win_item_name` VARCHAR(128) NULL DEFAULT NULL,\n" +
-                "\t`win_itme_amount` INT(11) NULL DEFAULT NULL,\n" +
+                "\t`win_item_amount` INT(11) NULL DEFAULT NULL,\n" +
                 "\t`win_gacha_item_data` LONGTEXT NULL,\n" +
                 "\t`location` VARCHAR(512) NULL DEFAULT NULL,\n" +
                 "\t`spin_time` BIGINT(20) NULL DEFAULT NULL,\n" +
