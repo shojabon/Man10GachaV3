@@ -61,22 +61,15 @@ public class GachaPlayGame {
             long speed =  5;
             int stage = 0;
             for(int i =0; i < 10000; i++){
-
-
-
-
                 try {
                     Thread.sleep(speed);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                int randSize = game.getStorage().size();
-                if(randSize <= 0) randSize = 1;
-                int index = new Random().nextInt(randSize);
-                SItemStack nextItem = new SItemStack(game.getItemIndex().get(game.getStorage().get(index)).item).setAmount(game.getItemIndex().get(game.getStorage().get(index)).amount);
+                SItemStack nextItem = new SItemStack(game.getItemIndex().get(game.getItemToPlace()).item).setAmount(game.getItemIndex().get(game.getItemToPlace()).amount);
                 rollItems();
                 inv.setItem(17, nextItem.build());
-                itemStacks[8] = game.getItemIndex().get(game.getStorage().get(index));
+                itemStacks[8] = game.getItemIndex().get(game.getItemToPlace());
                 if(i >= 150){
                     speed += 1;
                 }

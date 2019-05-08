@@ -60,7 +60,7 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                new Thread(() -> api.loadAllGachas()).start();
+                api.loadAllGachas();
             }
         }.runTaskLater(this, 3);
     }

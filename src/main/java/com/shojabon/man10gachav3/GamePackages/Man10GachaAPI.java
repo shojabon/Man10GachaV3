@@ -21,21 +21,18 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Man10GachaAPI {
     private Plugin plugin = Bukkit.getPluginManager().getPlugin("Man10GachaV3");
-    public static HashMap<String, GachaGame> gachaGameMap = new HashMap<>();
-    static HashMap<Location, GachaSignData> signDataMap = new HashMap<>();
-    public static HashMap<UUID, String> inGamePlayerMap = new HashMap<>();
+    public static ConcurrentHashMap<String, GachaGame> gachaGameMap = new ConcurrentHashMap<>();
+    static ConcurrentHashMap<Location, GachaSignData> signDataMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<UUID, String> inGamePlayerMap = new ConcurrentHashMap<>();
     private GachaVault vault;
 
     public Man10GachaAPI(){
         vault = new GachaVault();
     }
-
-
-
-
 
     public boolean ifGachaSign(Location l){
         return signDataMap.containsKey(l);
@@ -347,10 +344,15 @@ public class Man10GachaAPI {
     }
 
     public void loadAllGachas(){
-        List<String> names = this.getGachasInDirectory();
-        for(String name : names){
-            this.getGacha(name);
-        }
+        new Thread(() -> {
+            List<String> names = this.getGachasInDirectory();
+            Bukkit.broadcastMessage(String.valueOf(names.size()));
+            for(String name : names){
+                Bukkit.broadcastMessage(name);
+                this.getGacha(name);
+                Bukkit.broadcastMessage(name);
+            }
+        }).start();
     }
 
 
