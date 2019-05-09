@@ -27,6 +27,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public final class Man10GachaV3 extends JavaPlugin implements Listener {
 
@@ -78,17 +79,10 @@ public final class Man10GachaV3 extends JavaPlugin implements Listener {
         GachaSettings settings = new GachaSettings("test", "a", new GachaSound(Sound.BLOCK_DISPENSER_DISPENSE, 1, 1), new SItemStack(Material.STONE).build());
         ArrayList<GachaPayment> payments = new ArrayList<>();
         payments.add(new GachaPayment(new GachaVaultPayment(100)));
-        ArrayList<GachaItemStack> items = new ArrayList<>();
-        items.add(new GachaItemStack(new SItemStack(Material.STONE).setAmount(1).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.DIAMOND).setAmount(2).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.GOLD_AXE).setAmount(3).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.ANVIL).setAmount(4).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.TNT).setAmount(5).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.WATCH).setAmount(6).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.FENCE_GATE).setAmount(7).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.GLASS).setAmount(8).build()));
-        items.add(new GachaItemStack(new SItemStack(Material.TNT).setAmount(9).build()));
-        api.createGacha(settings, payments, items);
+        HashMap<GachaItemStack, Integer> item = new HashMap<>();
+        item.put(new GachaItemStack(new SItemStack(Material.STONE).setAmount(1).build()), 10);
+        item.put(new GachaItemStack(new SItemStack(Material.DIAMOND).setAmount(1).build()), 20);
+        api.createGacha(settings, payments, item);
     }
 
     public void databaseBootSequence(){

@@ -19,13 +19,15 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GachaGame {
 
     private GachaSettings settings;
-    private ArrayList<GachaPayment> payments = new ArrayList<>();
+    private ArrayList<GachaPayment> payments;
     //private ArrayList<Integer> storage = new ArrayList<>();
     private Listener listener = new Listener();
     private ArrayList<GachaItemStack> itemIndex;
@@ -34,25 +36,15 @@ public class GachaGame {
     private JavaPlugin plugin;
 
     public GachaGame(String name, JavaPlugin plugin){
-        Bukkit.broadcastMessage("debug");
         this.plugin = plugin;
-        Bukkit.broadcastMessage("debug");
         File file = new File(Bukkit.getPluginManager().getPlugin("Man10GachaV3").getDataFolder(), "gacha" + File.separator + name + ".yml");
-        Bukkit.broadcastMessage("debug");
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        Bukkit.broadcastMessage("debug");
-        settings = new GachaSettings(getSettingsMap(config));
-        Bukkit.broadcastMessage("debug");
+        settings = new GachaSettings(getSettingsMap(Objects.requireNonNull(config)));
         settings.name = name;
-        Bukkit.broadcastMessage("debug");
         itemIndex = getItemStackMap(config);
-        Bukkit.broadcastMessage("debug");
         payments = getPaymentList(config);
-        Bukkit.broadcastMessage("debug");
         getItemStacks(config);
-        Bukkit.broadcastMessage("debug");
         Bukkit.getPluginManager().registerEvents(listener, this.plugin);
-        Bukkit.broadcastMessage("debug");
     }
 
     private Map<String, Object> getSettingsMap(FileConfiguration config){
@@ -187,11 +179,8 @@ public class GachaGame {
         String items = config.getString("storage");
         String[] split = items.split("\\|");
         for(String s : split){
-            if(storageAmount.containsKey(Integer.valueOf(s))){
-                storageAmount.put(Integer.valueOf(s), storageAmount.get(Integer.valueOf(s))+1);
-            }else{
-                storageAmount.put(Integer.valueOf(s), 1);
-            }
+            String[] times = s.split("x");
+            storageAmount.put(Integer.valueOf(times[0]), Integer.valueOf(times[1]));
         }
         //storage = renderStorage();
     }
@@ -245,16 +234,12 @@ public class GachaGame {
 //        return items;
 //    }
 
-    public ArrayList<GachaItemStack> renderStorageItem(){
-        ArrayList<GachaItemStack> items = new ArrayList<>();
-        for(int i =0; i < storageAmount.keySet().size(); i++){
-            int key = (int) storageAmount.keySet().toArray()[i];
-            for(int ii =0; ii < storageAmount.get(key); ii++){
-                items.add(getItemIndex().get(key));
-            }
-
+    public  HashMap<GachaItemStack, Integer> renderStorageItem(){
+        HashMap<GachaItemStack, Integer> itemStacks = new HashMap<>();
+        for(int i =0; i < storageAmount.size(); i++){
+            itemStacks.put(itemIndex.get((Integer) storageAmount.keySet().toArray()[i]), storageAmount.get(storageAmount.keySet().toArray()[i]));
         }
-        return items;
+        return itemStacks;
     }
 
 //    public void updateStorage(){
@@ -282,8 +267,7 @@ public class GachaGame {
         return total;
     }
 
-    public int getItemToPlace(){
-        int index = new Random().nextInt(getStorageSize());
+    public int getItemToPlace(int index){
         int startFrom = 0;
         for(int i =0; i < storageAmount.size(); i++){
             if(index >= startFrom && index < startFrom + storageAmount.get(i)) return i;

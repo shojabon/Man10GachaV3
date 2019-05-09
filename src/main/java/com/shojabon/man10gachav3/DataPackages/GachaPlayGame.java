@@ -66,10 +66,11 @@ public class GachaPlayGame {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                SItemStack nextItem = new SItemStack(game.getItemIndex().get(game.getItemToPlace()).item).setAmount(game.getItemIndex().get(game.getItemToPlace()).amount);
+                int index = new Random().nextInt(game.getStorageSize());
+                SItemStack nextItem = new SItemStack(game.getItemIndex().get(game.getItemToPlace(index)).item).setAmount(game.getItemIndex().get(game.getItemToPlace(index)).amount);
                 rollItems();
                 inv.setItem(17, nextItem.build());
-                itemStacks[8] = game.getItemIndex().get(game.getItemToPlace());
+                itemStacks[8] = game.getItemIndex().get(game.getItemToPlace(index));
                 if(i >= 150){
                     speed += 1;
                 }

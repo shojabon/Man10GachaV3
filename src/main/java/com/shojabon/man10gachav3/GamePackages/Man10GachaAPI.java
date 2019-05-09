@@ -121,7 +121,8 @@ public class Man10GachaAPI {
 
 
 
-    public void createGacha(GachaSettings gachaSettings, ArrayList<GachaPayment> payments, ArrayList<GachaItemStack> itemStacks){
+
+    public void createGacha(GachaSettings gachaSettings, ArrayList<GachaPayment> payments, HashMap<GachaItemStack, Integer> itemStacks){
         new Thread(() -> {
             File file = new File(plugin.getDataFolder(), "gacha" + File.separator + gachaSettings.name + ".yml");
             createFileIfNotExists(file);
@@ -132,23 +133,16 @@ public class Man10GachaAPI {
             printPayment(payments, config);
 
 
+            ArrayList<GachaItemStack> index = new ArrayList<>(itemStacks.keySet());
+            String outString = storageString(itemStacks, index);
 
-            ArrayList<GachaItemStack> compressedItemStacks = compressItemStackList(itemStacks);
-
-
-            StringBuilder out = new StringBuilder();
-            for (GachaItemStack itemStack : itemStacks) {
-                int index = getIndexOfItem(compressedItemStacks, itemStack);
-                out.append(index).append("|");
-            }
-
-            if(out.length() != 0){
-                config.set("storage", out.toString().substring(0, out.toString().length() -1));
+            if(outString.length() != 0){
+                config.set("storage", outString.substring(0, outString.length() -1));
             }else{
                 config.set("storage", null);
             }
-            for(int i = 0;i < compressedItemStacks.size();i++){
-                Map<String, Object> item = compressedItemStacks.get(i).getStringData();
+            for(int i = 0;i < index.size();i++){
+                Map<String, Object> item = index.get(i).getStringData();
                 printItemIndex(item, config, i);
             }
 
@@ -161,6 +155,16 @@ public class Man10GachaAPI {
 
 
     }
+
+    private String storageString(HashMap<GachaItemStack, Integer> itemStacks, ArrayList<GachaItemStack> index){
+        StringBuilder builder = new StringBuilder();
+        for(int i =0; i < itemStacks.size(); i++){
+            int id = getIndexOfItem(index, (GachaItemStack) itemStacks.keySet().toArray()[i]);
+            builder.append(id).append("x").append(itemStacks.get(itemStacks.keySet().toArray()[id])).append("|");
+        }
+        return builder.toString();
+    }
+
 
     private int getIndexOfItem(ArrayList<GachaItemStack> items, GachaItemStack item){
         for(int i =0; i < items.size(); i++){
@@ -344,15 +348,12 @@ public class Man10GachaAPI {
     }
 
     public void loadAllGachas(){
-        new Thread(() -> {
             List<String> names = this.getGachasInDirectory();
-            Bukkit.broadcastMessage(String.valueOf(names.size()));
             for(String name : names){
-                Bukkit.broadcastMessage(name);
-                this.getGacha(name);
-                Bukkit.broadcastMessage(name);
+                new Thread(() -> {
+                    this.getGacha(name);
+                }).start();
             }
-        }).start();
     }
 
 
@@ -386,7 +387,7 @@ public class Man10GachaAPI {
         createGacha(game.getSettings(), game.getPayments(), game.renderStorageItem());
     }
 
-    public ArrayList<GachaItemStack> compressItemStackList(ArrayList<GachaItemStack> arr){
+    public static ArrayList<GachaItemStack> compressItemStackList(ArrayList<GachaItemStack> arr){
         ArrayList<GachaItemStack> out = new ArrayList<>();
         for(GachaItemStack item : arr){
             boolean same = false;

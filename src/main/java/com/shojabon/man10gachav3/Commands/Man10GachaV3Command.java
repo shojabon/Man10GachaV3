@@ -3,6 +3,7 @@ package com.shojabon.man10gachav3.Commands;
 import com.shojabon.man10gachav3.DataPackages.GachaSettings;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsMenu;
 import com.shojabon.man10gachav3.GameDataPackages.Menu.SettingsMenu.GachaSettingsSelectionMenu;
+import com.shojabon.man10gachav3.GamePackages.GachaGame;
 import com.shojabon.man10gachav3.Man10GachaV3;
 import com.shojabon.man10gachav3.ToolPackages.GachaVault;
 import com.shojabon.man10gachav3.ToolPackages.SItemStack;
@@ -10,9 +11,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Man10GachaV3Command implements CommandExecutor {
@@ -34,6 +39,25 @@ public class Man10GachaV3Command implements CommandExecutor {
         sender.sendMessage("§d§lV1.1 Release");
         sender.sendMessage("§6§lCreated By Sho0");
     }
+
+    public String load(Reader reader) throws IOException, InvalidConfigurationException {
+        BufferedReader input = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
+
+        StringBuilder builder = new StringBuilder();
+
+        try {
+            String line;
+
+            while ((line = input.readLine()) != null) {
+                builder.append(line);
+                builder.append('\n');
+            }
+        } finally {
+            input.close();
+        }
+        return builder.toString();
+    }
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -100,7 +124,7 @@ public class Man10GachaV3Command implements CommandExecutor {
                     sender.sendMessage(Man10GachaV3.prefix + "§4§lすでにガチャが存在します");
                     return false;
                 }
-                plugin.api.createGacha(new GachaSettings(args[1]), new ArrayList<>(), new ArrayList<>());
+                plugin.api.createGacha(new GachaSettings(args[1]), new ArrayList<>(), new HashMap<>());
                 sender.sendMessage(Man10GachaV3.prefix + "§a§lガチャが作成されました");
                 plugin.api.reloadGacha(args[1]);
                 return false;
